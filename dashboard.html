@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ocean English Learning Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap">
+<style>
+:root{
+  --ocean-deep:#0B4F6C;
+  --ocean-mid:#01BAEF;
+  --ocean-bright:#5CE1E6;
+  --coral:#FF6B5B;
+  --coral-deep:#E24E3F;
+  --sun:#FFD166;
+  --leaf:#39C87A;
+  --violet:#8C7AE6;
+  --bg-top:#8FE3EE;
+  --bg-bot:#EAFBFF;
+  --surface:#FFFFFF;
+  --surface-2:#F2FBFC;
+  --ink:#0A2E3D;
+  --ink-soft:#3E6472;
+  --card-border:rgba(10,46,61,0.10);
+  --shadow:0 10px 28px rgba(8,40,54,0.14);
+  --shadow-sm:0 4px 12px rgba(8,40,54,0.10);
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg-top:#03202E; --bg-bot:#04141C; --surface:#0C3A4C; --surface-2:#0A2F3E;
+    --ink:#EAF6F6; --ink-soft:#9FCBD3; --card-border:rgba(255,255,255,0.10);
+    --shadow:0 10px 28px rgba(0,0,0,0.5); --shadow-sm:0 4px 12px rgba(0,0,0,0.4);
+  }
+}
+:root[data-theme="dark"]{
+  --bg-top:#03202E; --bg-bot:#04141C; --surface:#0C3A4C; --surface-2:#0A2F3E;
+  --ink:#EAF6F6; --ink-soft:#9FCBD3; --card-border:rgba(255,255,255,0.10);
+  --shadow:0 10px 28px rgba(0,0,0,0.5); --shadow-sm:0 4px 12px rgba(0,0,0,0.4);
+}
+*{box-sizing:border-box;}
+html,body{height:100%;}
+body{margin:0; font-family:'Nunito',system-ui,sans-serif; color:var(--ink); background:linear-gradient(180deg,var(--bg-top),var(--bg-bot) 340px, var(--bg-bot)); min-height:100vh;}
+h1,h2,h3,.display{font-family:'Baloo 2',system-ui,sans-serif; text-wrap:balance; margin:0;}
+button{font-family:inherit;}
+a{color:inherit;}
+
+.app{max-width:980px; margin:0 auto; padding:0 16px 100px;}
+.topnav{position:sticky; top:0; z-index:20; display:flex; gap:6px; overflow-x:auto; padding:12px 4px; background:rgba(255,255,255,.85); backdrop-filter:blur(6px); border-bottom:1px solid var(--card-border); margin-bottom:18px;}
+:root[data-theme="dark"] .topnav, @media (prefers-color-scheme:dark){ .topnav{background:rgba(4,20,28,.85);} }
+.navbtn{flex:0 0 auto; border:none; background:transparent; border-radius:14px; padding:10px 14px; font-weight:800; font-family:'Baloo 2'; color:var(--ink-soft); cursor:pointer; display:flex; align-items:center; gap:6px; white-space:nowrap;}
+.navbtn.active{background:var(--ocean-mid); color:#fff;}
+
+.section{display:none;}
+.section.active{display:block;}
+
+.hero{background:linear-gradient(160deg,#03B6E0,var(--ocean-deep)); border-radius:30px; padding:34px 24px; color:#fff; text-align:center; box-shadow:var(--shadow); position:relative; overflow:hidden;}
+.hero .swim{position:absolute; font-size:2rem; opacity:.35;}
+.hero h1{font-size:2rem; margin-bottom:6px;}
+.hero p{font-weight:700; opacity:.95; margin-bottom:20px;}
+
+.mainnav-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-top:22px;}
+@media(min-width:600px){ .mainnav-grid{grid-template-columns:repeat(4,1fr);} }
+.mainnav-card{background:var(--surface); border-radius:20px; padding:18px 10px; text-align:center; box-shadow:var(--shadow-sm); border:2px solid var(--card-border); cursor:pointer; font-weight:800; font-family:'Baloo 2'; color:var(--ink);}
+.mainnav-card .ic{font-size:2rem; display:block; margin-bottom:6px;}
+.mainnav-card:hover{border-color:var(--ocean-mid);}
+
+.card{background:var(--surface); border:1px solid var(--card-border); border-radius:24px; box-shadow:var(--shadow-sm); padding:22px; margin-bottom:16px;}
+.btn{appearance:none; border:none; border-radius:16px; padding:14px 20px; font-family:'Baloo 2'; font-weight:700; font-size:1rem; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:8px; box-shadow:var(--shadow-sm); color:#fff; text-decoration:none;}
+.btn:active{transform:translateY(1px);}
+.btn-primary{background:linear-gradient(180deg,#03C6EE,var(--ocean-mid));}
+.btn-coral{background:linear-gradient(180deg,#FF8A78,var(--coral));}
+.btn-sun{background:linear-gradient(180deg,#FFE08A,var(--sun)); color:#6B4A00;}
+.btn-leaf{background:linear-gradient(180deg,#5EE39A,var(--leaf));}
+.btn-ghost{background:var(--surface-2); color:var(--ink); box-shadow:none; border:2px solid var(--card-border);}
+.btn-lg{padding:18px 26px; font-size:1.2rem; border-radius:20px;}
+.btn-block{width:100%;}
+
+.chip-row{display:flex; gap:8px; flex-wrap:wrap;}
+.chip{padding:8px 16px; border-radius:999px; border:2px solid var(--card-border); background:var(--surface-2); font-weight:800; cursor:pointer; font-size:.9rem;}
+.chip.sel{background:var(--ocean-mid); color:#fff; border-color:var(--ocean-mid);}
+
+.topic-grid{display:grid; grid-template-columns:1fr; gap:14px;}
+@media(min-width:640px){ .topic-grid{grid-template-columns:1fr 1fr;} }
+.word-card{background:var(--surface-2); border-radius:18px; padding:16px; display:flex; gap:14px; align-items:center; border:2px solid var(--card-border);}
+.word-card .emo{font-size:2.4rem; flex:0 0 auto;}
+.word-card .info{flex:1;}
+.word-card .word{font-family:'Baloo 2'; font-weight:800; font-size:1.15rem; color:var(--ocean-deep);}
+:root[data-theme="dark"] .word-card .word, @media (prefers-color-scheme:dark){ .word-card .word{color:var(--ocean-bright);} }
+.word-card .ex{color:var(--ink-soft); font-weight:700; font-size:.92rem;}
+.listen-btn{border:none; background:var(--sun); color:#6B4A00; border-radius:50%; width:38px; height:38px; font-size:1.1rem; cursor:pointer; flex:0 0 auto;}
+
+.color-swatch{width:26px; height:26px; border-radius:50%; display:inline-block; vertical-align:middle; margin-right:8px; border:2px solid rgba(0,0,0,.08);}
+
+.vocab-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:10px;}
+@media(min-width:600px){ .vocab-grid{grid-template-columns:repeat(3,1fr);} }
+
+.mc-grid{display:grid; gap:10px; margin-top:14px;}
+.mc-opt{background:var(--surface-2); border:2px solid var(--card-border); border-radius:16px; padding:15px; font-weight:800; cursor:pointer; text-align:left; display:flex; align-items:center; gap:10px;}
+.mc-opt.correct{background:rgba(57,200,122,.22); border-color:var(--leaf);}
+.mc-opt.wrong{background:rgba(226,78,63,.18); border-color:var(--coral-deep); animation:shake .4s;}
+@keyframes shake{ 10%,90%{transform:translateX(-3px);} 20%,80%{transform:translateX(5px);} 30%,50%,70%{transform:translateX(-8px);} 40%,60%{transform:translateX(8px);} }
+.mc-letter{background:var(--ocean-mid); color:#fff; border-radius:8px; width:26px; height:26px; display:flex; align-items:center; justify-content:center; font-family:'Baloo 2'; flex:0 0 auto;}
+
+.match-grid{display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-top:10px;}
+.match-col{display:flex; flex-direction:column; gap:8px;}
+.match-item{background:var(--surface-2); border:2px solid var(--card-border); border-radius:14px; padding:12px; text-align:center; font-weight:800; cursor:pointer; font-size:1.3rem;}
+.match-item.word{font-size:1rem;}
+.match-item.sel{border-color:var(--ocean-mid); background:rgba(1,186,239,.15);}
+.match-item.done{background:rgba(57,200,122,.2); border-color:var(--leaf); opacity:.7; cursor:default;}
+.match-item.wrongflash{animation:shake .4s;}
+
+.progress-item{margin-bottom:16px;}
+.progress-item .lbl{display:flex; justify-content:space-between; font-weight:800; font-family:'Baloo 2'; margin-bottom:6px;}
+.progressbar{height:18px; border-radius:999px; background:var(--surface-2); border:2px solid var(--card-border); overflow:hidden;}
+.progressbar>div{height:100%; background:linear-gradient(90deg,var(--leaf),#7CE8AE); border-radius:999px; transition:width .5s ease;}
+.encourage{background:linear-gradient(180deg,#FFF3D0,#FFE7A8); color:#6B4A00; border-radius:16px; padding:14px 18px; font-weight:800; text-align:center; margin-top:10px;}
+:root[data-theme="dark"] .encourage, @media (prefers-color-scheme:dark){ .encourage{background:linear-gradient(180deg,#4A3A0E,#3A2E08); color:#FFE7A8;} }
+
+label{font-weight:800; color:var(--ink-soft); font-size:.8rem; letter-spacing:.03em; text-transform:uppercase; display:block; margin-bottom:6px;}
+input[type=text],input[type=url],select,textarea{font-family:'Nunito',sans-serif; font-weight:700; font-size:1rem; padding:12px 14px; border-radius:12px; border:2px solid var(--card-border); background:var(--surface-2); color:var(--ink); width:100%;}
+.field{margin-bottom:14px;}
+.small{font-size:.85rem; color:var(--ink-soft); font-weight:700;}
+.row{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
+
+.toast{position:fixed; left:50%; top:16px; transform:translateX(-50%) translateY(-30px); background:var(--ink); color:#fff; padding:12px 22px; border-radius:999px; font-weight:800; font-family:'Baloo 2'; z-index:50; opacity:0; transition:all .25s ease; box-shadow:var(--shadow); pointer-events:none;}
+.toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+.toast.good{background:var(--leaf);}
+.toast.bad{background:var(--coral-deep);}
+
+table{width:100%; border-collapse:collapse; font-size:.92rem;}
+th,td{text-align:left; padding:8px 10px; border-bottom:1px solid var(--card-border);}
+th{color:var(--ink-soft); text-transform:uppercase; font-size:.72rem; letter-spacing:.04em;}
+.overflow-x{overflow-x:auto;}
+.pin-wrap{max-width:320px; margin:40px auto;}
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="topnav" id="topnav"></nav>
+
+  <!-- HOME -->
+  <section class="section" id="sec-home">
+    <div class="hero">
+      <span class="swim" style="top:10px; left:8%;">🐠</span>
+      <span class="swim" style="top:60%; left:80%;">🐙</span>
+      <span class="swim" style="top:20%; left:70%;">⭐</span>
+      <h1>🌊 OCEAN ENGLISH LEARNING HUB</h1>
+      <p>Explore English under the sea!</p>
+      <a class="btn btn-sun btn-lg" id="playBtn" href="#" target="_blank" rel="noopener">🎮 PLAY OCEAN ENGLISH ADVENTURE</a>
+    </div>
+    <div class="mainnav-grid">
+      <div class="mainnav-card" onclick="showSection('learn')"><span class="ic">📚</span>LEARN</div>
+      <div class="mainnav-card" onclick="showSection('vocab')"><span class="ic">🐠</span>VOCABULARY</div>
+      <div class="mainnav-card" onclick="showSection('practice')"><span class="ic">📝</span>PRACTICE</div>
+      <div class="mainnav-card" onclick="showSection('progress')"><span class="ic">⭐</span>MY PROGRESS</div>
+    </div>
+    <div class="card" style="margin-top:20px;">
+      <label>Pilih Level</label>
+      <div class="chip-row">
+        <button class="chip" data-y="y12" onclick="setYear('y12')">🌱 Year 1–2</button>
+        <button class="chip" data-y="y34" onclick="setYear('y34')">🚀 Year 3–4</button>
+      </div>
+    </div>
+    <div class="card">
+      <label>🎮 Ready for an adventure?</label>
+      <p>Put your English skills to the test in Ocean English Adventure!</p>
+      <a class="btn btn-primary btn-block" id="playBtn2" href="#" target="_blank" rel="noopener">PLAY NOW 🌊</a>
+    </div>
+    <button class="btn btn-ghost" style="margin-top:6px;" onclick="showSection('admin_gate')">🔐 Teacher / Admin Area</button>
+  </section>
+
+  <!-- LEARN -->
+  <section class="section" id="sec-learn">
+    <h2 style="margin-bottom:14px;">📚 Learn</h2>
+    <div id="learnTopics"></div>
+  </section>
+
+  <!-- VOCABULARY -->
+  <section class="section" id="sec-vocab">
+    <h2 style="margin-bottom:10px;">🐠 Vocabulary</h2>
+    <div class="chip-row" id="vocabFilter" style="margin-bottom:14px;"></div>
+    <div class="vocab-grid" id="vocabGrid"></div>
+  </section>
+
+  <!-- PRACTICE -->
+  <section class="section" id="sec-practice">
+    <h2 style="margin-bottom:6px;">📝 Practice</h2>
+    <p class="small" style="margin-bottom:14px;">Pilih jenis latihan:</p>
+    <div class="chip-row" id="practiceKindPicker" style="margin-bottom:16px;"></div>
+    <div class="card" id="practiceBody"></div>
+  </section>
+
+  <!-- PROGRESS -->
+  <section class="section" id="sec-progress">
+    <h2 style="margin-bottom:14px;">⭐ Ocean Explorer Progress</h2>
+    <div class="card" id="progressBody"></div>
+  </section>
+
+  <!-- ADMIN GATE -->
+  <section class="section" id="sec-admin_gate">
+    <div class="card pin-wrap stack">
+      <h2 style="text-align:center; margin-bottom:10px;">🔐 Teacher Area</h2>
+      <p class="small" style="text-align:center;">Masukkan PIN guru untuk masuk (default: 0000, bisa diganti di dalam).</p>
+      <div class="field"><input type="text" id="pinInput" placeholder="PIN" maxlength="8"></div>
+      <button class="btn btn-primary btn-block" onclick="checkPin()">Masuk</button>
+      <button class="btn btn-ghost btn-block" onclick="showSection('home')">Kembali</button>
+    </div>
+  </section>
+
+  <!-- ADMIN -->
+  <section class="section" id="sec-admin">
+    <h2 style="margin-bottom:14px;">🧑‍🏫 Teacher / Admin Area</h2>
+
+    <div class="card">
+      <label>Link Game (GAME LINK)</label>
+      <div class="field"><input type="url" id="adminGameUrl" placeholder="https://..."></div>
+      <button class="btn btn-primary" onclick="saveGameUrl()">Simpan Link Game</button>
+      <p class="small" id="gameUrlStatus" style="margin-top:8px;"></p>
+    </div>
+
+    <div class="card">
+      <label>Default Level untuk Semua Murid</label>
+      <div class="chip-row">
+        <button class="chip" data-y="y12" onclick="setYear('y12',true)">🌱 Year 1–2</button>
+        <button class="chip" data-y="y34" onclick="setYear('y34',true)">🚀 Year 3–4</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <label>Ubah PIN Guru</label>
+      <div class="row">
+        <input type="text" id="newPin" placeholder="PIN baru" maxlength="8" style="max-width:160px;">
+        <button class="btn btn-ghost" onclick="changePin()">Simpan PIN</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <label>Materi Belajar (bawaan)</label>
+      <p class="small">4 topik, <span id="adminVocabCount"></span> kata dasar, <span id="adminPracticeCount"></span> soal latihan bawaan.</p>
+    </div>
+
+    <div class="card">
+      <label>➕ Tambah Kosakata Baru</label>
+      <div class="row">
+        <input type="text" id="vWord" placeholder="Kata (contoh: TURTLE)" style="flex:2;">
+        <input type="text" id="vEmoji" placeholder="Emoji (🐢)" style="flex:1;">
+      </div>
+      <div class="field" style="margin-top:8px;"><input type="text" id="vSentence" placeholder="Contoh kalimat (This is a turtle.)"></div>
+      <div class="field">
+        <select id="vCat"><option value="animals">Ocean Animals</option><option value="things">Ocean Things</option></select>
+      </div>
+      <button class="btn btn-leaf" onclick="addVocab()">Tambahkan Kosakata</button>
+    </div>
+
+    <div class="card">
+      <label>➕ Tambah Soal Latihan</label>
+      <div class="field"><input type="text" id="qText" placeholder="Pertanyaan (contoh: What is this?)"></div>
+      <div class="row">
+        <input type="text" id="qA" placeholder="Pilihan A (benar)" style="flex:1;">
+        <input type="text" id="qB" placeholder="Pilihan B" style="flex:1;">
+        <input type="text" id="qC" placeholder="Pilihan C" style="flex:1;">
+      </div>
+      <p class="small" style="margin-top:6px;">Pilihan A akan menjadi jawaban yang benar.</p>
+      <button class="btn btn-leaf" style="margin-top:8px;" onclick="addQuestion()">Tambahkan Soal</button>
+    </div>
+
+    <div class="card">
+      <label>⭐ Progress Murid (dari perangkat yang tersinkron)</label>
+      <div class="overflow-x"><table id="studentTable"><thead><tr><th>Nama</th><th>Terakhir Aktif</th><th>Animals</th><th>Things</th><th>Colors</th><th>Sentences</th></tr></thead><tbody></tbody></table></div>
+      <p class="small" id="studentTableEmpty" style="margin-top:8px;"></p>
+    </div>
+
+    <button class="btn btn-ghost btn-block" onclick="showSection('home')">Kembali ke Beranda</button>
+  </section>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+/* ============================= DATA ============================= */
+const ANIMALS=[
+  {w:'FISH',e:'🐠',ex:'This is a fish.'},
+  {w:'OCTOPUS',e:'🐙',ex:'The octopus has eight arms.'},
+  {w:'WHALE',e:'🐋',ex:'I can see a whale.'},
+  {w:'CRAB',e:'🦀',ex:'The crab is small.'},
+  {w:'STARFISH',e:'⭐',ex:'The starfish is on the sand.'}
+];
+const THINGS=[
+  {w:'SHELL',e:'🐚',ex:'I found a shell.'},
+  {w:'CORAL',e:'🪸',ex:'The coral is colourful.'},
+  {w:'SEAWEED',e:'🌿',ex:'The seaweed is green.'},
+  {w:'ISLAND',e:'🏝️',ex:'The island is small.'},
+  {w:'BOAT',e:'🚤',ex:'We sail on a boat.'},
+  {w:'OCEAN',e:'🌊',ex:'The ocean is big and blue.'}
+];
+const COLORS=[
+  {w:'RED',hex:'#FF5C5C',ex:'The starfish is red.'},
+  {w:'BLUE',hex:'#3DA9E0',ex:'The fish is blue.'},
+  {w:'YELLOW',hex:'#FFD166',ex:'The fish is yellow.'},
+  {w:'GREEN',hex:'#39C87A',ex:'The seaweed is green.'}
+];
+const ADJ_PAIRS=[
+  {a:'BIG',b:'SMALL',ex:'The whale is big. The crab is small.'},
+  {a:'LONG',b:'SHORT',ex:'The seaweed is long.'},
+  {a:'FAST',b:'SLOW',ex:'The fish is fast.'}
+];
+const DEFAULT_GAME_URL="./game.html";
+
+let state={year: localStorage.getItem('oel_year')||'y12', section:'home', db:null, dbReady:false};
+let extraVocab=[]; // {w,e,ex,cat}
+let extraQuestions=[]; // {q,opts:[a,b,c],a}
+let deviceId = localStorage.getItem('oel_deviceId');
+if(!deviceId){ deviceId='dev_'+Math.random().toString(36).slice(2,10); localStorage.setItem('oel_deviceId',deviceId); }
+
+function toast(msg,kind){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast show '+(kind||'');
+  clearTimeout(t._tm); t._tm=setTimeout(()=>t.classList.remove('show'),1600);
+}
+function escapeHtml(s){return (s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function speak(text){
+  try{
+    if('speechSynthesis' in window){
+      const u=new SpeechSynthesisUtterance(text);
+      u.lang='en-US'; u.rate=0.85;
+      speechSynthesis.cancel();
+      speechSynthesis.speak(u);
+    }
+  }catch(e){}
+}
+
+/* ============================= NAV ============================= */
+const NAV=[
+  {id:'home',label:'Home',ic:'🏠'},
+  {id:'game',label:'Game',ic:'🎮'},
+  {id:'learn',label:'Learn',ic:'📚'},
+  {id:'vocab',label:'Vocab',ic:'🐠'},
+  {id:'practice',label:'Practice',ic:'📝'},
+  {id:'progress',label:'Progress',ic:'⭐'}
+];
+function renderNav(){
+  const nav=document.getElementById('topnav');
+  nav.innerHTML=NAV.map(n=>`<button class="navbtn${state.section===n.id?' active':''}" data-id="${n.id}">${n.ic} ${n.label}</button>`).join('');
+  nav.querySelectorAll('.navbtn').forEach(b=>{
+    b.onclick=()=>{
+      if(b.dataset.id==='game'){ window.open(getGameUrl(),'_blank'); return; }
+      showSection(b.dataset.id);
+    };
+  });
+}
+function showSection(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  const el=document.getElementById('sec-'+id);
+  if(el) el.classList.add('active');
+  state.section=id;
+  renderNav();
+  window.scrollTo(0,0);
+  if(id==='learn') renderLearn();
+  if(id==='vocab') renderVocab();
+  if(id==='practice') renderPracticePicker();
+  if(id==='progress') renderProgress();
+  if(id==='admin') renderAdmin();
+}
+
+/* ============================= GAME LINK / CONFIG ============================= */
+function getGameUrl(){
+  return (localStorage.getItem('oel_gameUrl')) || DEFAULT_GAME_URL || '#';
+}
+function applyGameUrlToButtons(){
+  const url=getGameUrl();
+  document.getElementById('playBtn').href=url;
+  document.getElementById('playBtn2').href=url;
+}
+async function saveGameUrl(){
+  const val=(document.getElementById('adminGameUrl').value||'').trim();
+  if(!val){ toast('Masukkan link game.','bad'); return; }
+  localStorage.setItem('oel_gameUrl',val);
+  applyGameUrlToButtons();
+  document.getElementById('gameUrlStatus').textContent='Tersimpan di perangkat ini.';
+  if(state.dbReady){
+    try{ await state.db.doc('config/site').set({gameUrl:val, updatedAt:Date.now()});
+      document.getElementById('gameUrlStatus').textContent='Tersimpan & dibagikan ke semua perangkat yang tersinkron.';
+    }catch(e){}
+  }
+  toast('Link game disimpan!','good');
+}
+
+/* ============================= YEAR LEVEL ============================= */
+function setYear(y,fromAdmin){
+  state.year=y;
+  localStorage.setItem('oel_year',y);
+  document.querySelectorAll('[data-y]').forEach(c=>c.classList.toggle('sel',c.dataset.y===y));
+  if(state.section==='learn') renderLearn();
+  if(state.section==='practice') renderPracticePicker();
+  if(fromAdmin && state.dbReady){
+    state.db.doc('config/site').update({defaultYear:y}).catch(()=>{});
+  }
+}
+
+/* ============================= LEARN ============================= */
+function renderLearn(){
+  const el=document.getElementById('learnTopics');
+  const allAnimals=ANIMALS.concat(extraVocab.filter(v=>v.cat==='animals'));
+  const allThings=THINGS.concat(extraVocab.filter(v=>v.cat==='things'));
+  function wordCards(list){
+    return list.map(v=>`<div class="word-card"><span class="emo">${v.e}</span><div class="info"><div class="word">${v.w}</div><div class="ex">${escapeHtml(v.ex||'')}</div></div><button class="listen-btn" onclick="speak('${v.w.replace(/'/g,"")}')">🔊</button></div>`).join('');
+  }
+  let html='';
+  html+=`<div class="card"><h3>🐠 Topic 1 — Ocean Animals</h3><div class="topic-grid" style="margin-top:12px;">${wordCards(allAnimals)}</div></div>`;
+  html+=`<div class="card"><h3>🐚 Topic 2 — Ocean Things</h3><div class="topic-grid" style="margin-top:12px;">${wordCards(allThings)}</div></div>`;
+  html+=`<div class="card"><h3>🎨 Topic 3 — Colors</h3><div class="topic-grid" style="margin-top:12px;">${COLORS.map(c=>`<div class="word-card"><span class="color-swatch" style="background:${c.hex}"></span><div class="info"><div class="word">${c.w}</div><div class="ex">${c.ex}</div></div><button class="listen-btn" onclick="speak('${c.w}')">🔊</button></div>`).join('')}</div></div>`;
+  if(state.year==='y34'){
+    html+=`<div class="card"><h3>📏 Topic 4 — Describing Things</h3><div class="topic-grid" style="margin-top:12px;">${ADJ_PAIRS.map(p=>`<div class="word-card"><span class="emo">↔️</span><div class="info"><div class="word">${p.a} / ${p.b}</div><div class="ex">${p.ex}</div></div><button class="listen-btn" onclick="speak('${p.a} and ${p.b}')">🔊</button></div>`).join('')}</div></div>`;
+  }
+  el.innerHTML=html;
+}
+
+/* ============================= VOCABULARY ============================= */
+let vocabFilterCat='all';
+function allVocabItems(){
+  return [
+    ...ANIMALS.map(v=>({...v,cat:'animals'})),
+    ...THINGS.map(v=>({...v,cat:'things'})),
+    ...extraVocab
+  ];
+}
+function renderVocab(){
+  const cats=[{id:'all',label:'Semua'},{id:'animals',label:'🐠 Animals'},{id:'things',label:'🐚 Things'}];
+  document.getElementById('vocabFilter').innerHTML=cats.map(c=>`<button class="chip${vocabFilterCat===c.id?' sel':''}" data-c="${c.id}">${c.label}</button>`).join('');
+  document.querySelectorAll('#vocabFilter .chip').forEach(c=>c.onclick=()=>{vocabFilterCat=c.dataset.c; renderVocab();});
+  const items=allVocabItems().filter(v=>vocabFilterCat==='all'||v.cat===vocabFilterCat);
+  document.getElementById('vocabGrid').innerHTML=items.map(v=>`<div class="word-card"><span class="emo">${v.e}</span><div class="info"><div class="word">${v.w}</div><div class="ex">${escapeHtml(v.ex||'')}</div></div><button class="listen-btn" onclick="speak('${(v.w||'').replace(/'/g,"")}')">🔊</button></div>`).join('');
+}
+
+/* ============================= PRACTICE ============================= */
+const PRACTICE_KINDS=[
+  {id:'choose',label:'✅ Choose the Word'},
+  {id:'match',label:'🔗 Match'},
+  {id:'complete',label:'✏️ Complete the Sentence'},
+  {id:'describe',label:'📏 Choose the Description'}
+];
+let practiceKind='choose';
+function renderPracticePicker(){
+  document.getElementById('practiceKindPicker').innerHTML=PRACTICE_KINDS.map(k=>`<button class="chip${practiceKind===k.id?' sel':''}" data-k="${k.id}">${k.label}</button>`).join('');
+  document.querySelectorAll('#practiceKindPicker .chip').forEach(c=>c.onclick=()=>{practiceKind=c.dataset.k; renderPracticePicker();});
+  const body=document.getElementById('practiceBody');
+  if(practiceKind==='choose') renderPracticeChoose(body);
+  else if(practiceKind==='match') renderPracticeMatch(body);
+  else if(practiceKind==='complete') renderPracticeComplete(body);
+  else renderPracticeDescribe(body);
+}
+function progressGet(){
+  try{ return JSON.parse(localStorage.getItem('oel_progress')||'{}'); }catch(e){ return {}; }
+}
+function progressBump(cat, correct){
+  const p=progressGet();
+  p[cat]=p[cat]||{correct:0,total:0};
+  p[cat].total++;
+  if(correct) p[cat].correct++;
+  localStorage.setItem('oel_progress',JSON.stringify(p));
+  syncProgressToDb(p);
+}
+let studentName = localStorage.getItem('oel_studentName')||'';
+async function syncProgressToDb(p){
+  if(!state.dbReady) return;
+  if(!studentName){
+    studentName = prompt('Nama kamu untuk dicatat di progress kelas? (boleh kosongkan)')||'';
+    localStorage.setItem('oel_studentName', studentName);
+  }
+  if(!studentName) return;
+  try{
+    await state.db.doc('progress/'+deviceId).set({
+      name:studentName,
+      animals:p.animals||{correct:0,total:0},
+      things:p.things||{correct:0,total:0},
+      colors:p.colors||{correct:0,total:0},
+      sentences:p.sentences||{correct:0,total:0},
+      lastActive:Date.now()
+    });
+  }catch(e){}
+}
+
+function renderPracticeChoose(body){
+  const pool=allVocabItems();
+  const target=pool[Math.floor(Math.random()*pool.length)];
+  const distract=shuffle(pool.filter(v=>v.w!==target.w)).slice(0,2);
+  const opts=shuffle([target,...distract]);
+  body.innerHTML=`<h3 style="text-align:center;">What is this? ${target.e}</h3><div class="mc-grid">${opts.map((o,i)=>`<div class="mc-opt" data-w="${o.w}"><span class="mc-letter">${String.fromCharCode(65+i)}</span>${o.w}</div>`).join('')}</div>`;
+  body.querySelectorAll('.mc-opt').forEach(opt=>{
+    opt.onclick=()=>{
+      const ok=opt.dataset.w===target.w;
+      opt.classList.add(ok?'correct':'wrong');
+      progressBump(target.cat==='animals'?'animals':'things', ok);
+      toast(ok?'Correct! 🎉':'Try again!', ok?'good':'bad');
+      if(ok) setTimeout(()=>renderPracticeChoose(body),700);
+    };
+  });
+}
+let matchState=null;
+function renderPracticeMatch(body){
+  const pool=shuffle(allVocabItems()).slice(0,4);
+  matchState={pairs:pool, selEmoji:null, doneCount:0};
+  const words=shuffle(pool);
+  body.innerHTML=`<h3 style="text-align:center;">Match the picture with the word</h3>
+    <div class="match-grid">
+      <div class="match-col" id="matchEmojiCol">${pool.map(p=>`<div class="match-item" data-w="${p.w}">${p.e}</div>`).join('')}</div>
+      <div class="match-col" id="matchWordCol">${words.map(p=>`<div class="match-item word" data-w="${p.w}">${p.w}</div>`).join('')}</div>
+    </div>`;
+  body.querySelectorAll('#matchEmojiCol .match-item').forEach(el=>{
+    el.onclick=()=>{
+      if(el.classList.contains('done')) return;
+      body.querySelectorAll('#matchEmojiCol .match-item').forEach(x=>x.classList.remove('sel'));
+      el.classList.add('sel'); matchState.selEmoji=el;
+    };
+  });
+  body.querySelectorAll('#matchWordCol .match-item').forEach(el=>{
+    el.onclick=()=>{
+      if(el.classList.contains('done') || !matchState.selEmoji) return;
+      const ok = matchState.selEmoji.dataset.w===el.dataset.w;
+      if(ok){
+        matchState.selEmoji.classList.add('done'); matchState.selEmoji.classList.remove('sel');
+        el.classList.add('done');
+        matchState.doneCount++;
+        progressBump('animals', true);
+        toast('Match! 🎉','good');
+        if(matchState.doneCount>=matchState.pairs.length){ setTimeout(()=>renderPracticeMatch(body),700); }
+      } else {
+        el.classList.add('wrongflash'); toast('Try again!','bad');
+        progressBump('animals', false);
+        setTimeout(()=>el.classList.remove('wrongflash'),400);
+      }
+      matchState.selEmoji=null;
+    };
+  });
+}
+function renderPracticeComplete(body){
+  const pool=allVocabItems();
+  const target=pool[Math.floor(Math.random()*pool.length)];
+  const distract=shuffle(pool.filter(v=>v.w!==target.w)).slice(0,2);
+  const opts=shuffle([target,...distract]);
+  body.innerHTML=`<h3 style="text-align:center;">${target.e} This is a ______.</h3><div class="mc-grid">${opts.map((o,i)=>`<div class="mc-opt" data-w="${o.w}"><span class="mc-letter">${String.fromCharCode(65+i)}</span>${o.w.toLowerCase()}</div>`).join('')}</div>`;
+  body.querySelectorAll('.mc-opt').forEach(opt=>{
+    opt.onclick=()=>{
+      const ok=opt.dataset.w===target.w;
+      opt.classList.add(ok?'correct':'wrong');
+      progressBump('sentences', ok);
+      toast(ok?'Great sentence! 🎉':'Try again!', ok?'good':'bad');
+      if(ok) setTimeout(()=>renderPracticeComplete(body),700);
+    };
+  });
+}
+function renderPracticeDescribe(body){
+  const pair=ADJ_PAIRS[Math.floor(Math.random()*ADJ_PAIRS.length)];
+  const subjects=[
+    {s:'The whale',correct:'BIG',opts:['BIG','SMALL']},
+    {s:'The crab',correct:'SMALL',opts:['BIG','SMALL']},
+    {s:'The seaweed',correct:'LONG',opts:['LONG','SHORT']},
+    {s:'The fish',correct:'FAST',opts:['FAST','SLOW']}
+  ];
+  const q=subjects[Math.floor(Math.random()*subjects.length)];
+  body.innerHTML=`<h3 style="text-align:center;">${q.s} is...</h3><div class="mc-grid">${shuffle(q.opts).map((o,i)=>`<div class="mc-opt" data-w="${o}"><span class="mc-letter">${String.fromCharCode(65+i)}</span>${o.toLowerCase()}</div>`).join('')}</div>`;
+  body.querySelectorAll('.mc-opt').forEach(opt=>{
+    opt.onclick=()=>{
+      const ok=opt.dataset.w===q.correct;
+      opt.classList.add(ok?'correct':'wrong');
+      progressBump('colors', ok);
+      toast(ok?'Correct! 🎉':'Try again!', ok?'good':'bad');
+      if(ok) setTimeout(()=>renderPracticeDescribe(body),700);
+    };
+  });
+}
+function shuffle(arr){const a=arr.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a;}
+
+/* ============================= PROGRESS ============================= */
+function renderProgress(){
+  const p=progressGet();
+  const cats=[{k:'animals',label:'Animals & Vocabulary'},{k:'things',label:'Ocean Things'},{k:'colors',label:'Colors & Descriptions'},{k:'sentences',label:'Sentences'}];
+  let html='';
+  let overall={c:0,t:0};
+  cats.forEach(c=>{
+    const d=p[c.k]||{correct:0,total:0};
+    const pct = d.total? Math.round(d.correct/d.total*100) : 0;
+    overall.c+=d.correct; overall.t+=d.total;
+    html+=`<div class="progress-item"><div class="lbl"><span>${c.label}</span><span>${pct}%</span></div><div class="progressbar"><div style="width:${pct}%"></div></div></div>`;
+  });
+  const overallPct = overall.t? Math.round(overall.c/overall.t*100):0;
+  let msg='Keep exploring! 🌊';
+  if(overallPct>=80) msg="You're becoming an Ocean English Expert! 🏆";
+  else if(overallPct>=50) msg='Great job! Keep going! 🌟';
+  else if(overall.t>0) msg='Nice start — keep exploring! 🐠';
+  document.getElementById('progressBody').innerHTML=html+`<div class="encourage">${msg}</div>`;
+}
+
+/* ============================= ADMIN ============================= */
+function checkPin(){
+  const pin=localStorage.getItem('oel_pin')||'0000';
+  const val=(document.getElementById('pinInput').value||'').trim();
+  if(val===pin){ showSection('admin'); }
+  else toast('PIN salah.','bad');
+}
+function changePin(){
+  const v=(document.getElementById('newPin').value||'').trim();
+  if(!v){ toast('Masukkan PIN baru.','bad'); return; }
+  localStorage.setItem('oel_pin',v);
+  document.getElementById('newPin').value='';
+  toast('PIN diperbarui.','good');
+}
+function renderAdmin(){
+  document.getElementById('adminGameUrl').value=getGameUrl();
+  document.getElementById('adminVocabCount').textContent=(ANIMALS.length+THINGS.length+COLORS.length+extraVocab.length);
+  document.getElementById('adminPracticeCount').textContent=(6+extraQuestions.length);
+  document.querySelectorAll('#sec-admin [data-y]').forEach(c=>c.classList.toggle('sel',c.dataset.y===state.year));
+  renderStudentTable();
+}
+async function addVocab(){
+  const w=(document.getElementById('vWord').value||'').trim().toUpperCase();
+  const e=(document.getElementById('vEmoji').value||'').trim();
+  const ex=(document.getElementById('vSentence').value||'').trim();
+  const cat=document.getElementById('vCat').value;
+  if(!w||!e){ toast('Isi kata dan emoji.','bad'); return; }
+  const item={w,e,ex,cat};
+  extraVocab.push(item);
+  document.getElementById('vWord').value=''; document.getElementById('vEmoji').value=''; document.getElementById('vSentence').value='';
+  toast('Kosakata ditambahkan!','good');
+  renderAdmin();
+  if(state.dbReady){
+    try{ await state.db.collection('content/vocab/items').add(item); }catch(e){}
+  }
+}
+async function addQuestion(){
+  const q=(document.getElementById('qText').value||'').trim();
+  const a=(document.getElementById('qA').value||'').trim();
+  const b=(document.getElementById('qB').value||'').trim();
+  const c=(document.getElementById('qC').value||'').trim();
+  if(!q||!a||!b){ toast('Isi pertanyaan dan minimal 2 pilihan.','bad'); return; }
+  const item={q,opts:[a,b,c].filter(Boolean),a};
+  extraQuestions.push(item);
+  document.getElementById('qText').value=''; document.getElementById('qA').value=''; document.getElementById('qB').value=''; document.getElementById('qC').value='';
+  toast('Soal latihan ditambahkan!','good');
+  renderAdmin();
+  if(state.dbReady){
+    try{ await state.db.collection('content/practice/items').add(item); }catch(e){}
+  }
+}
+function renderStudentTable(){
+  const tbody=document.querySelector('#studentTable tbody');
+  tbody.innerHTML='';
+  const empty=document.getElementById('studentTableEmpty');
+  if(!state.dbReady){ empty.textContent='Progress murid tersinkron memerlukan akses database (buka lewat Claude dengan akses aktif).'; return; }
+  state.db.collection('progress').orderBy('lastActive','desc').limit(50).get().then(snap=>{
+    if(snap.empty){ empty.textContent='Belum ada data progress murid.'; return; }
+    empty.textContent='';
+    snap.docs.forEach(d=>{
+      const p=d.data();
+      const fmt=(x)=> x? Math.round((x.correct||0)/(x.total||1)*100)+'%' : '-';
+      const when = p.lastActive? new Date(p.lastActive).toLocaleString('id-ID') : '-';
+      const tr=document.createElement('tr');
+      tr.innerHTML=`<td>${escapeHtml(p.name||'-')}</td><td>${when}</td><td>${fmt(p.animals)}</td><td>${fmt(p.things)}</td><td>${fmt(p.colors)}</td><td>${fmt(p.sentences)}</td>`;
+      tbody.appendChild(tr);
+    });
+  }).catch(()=>{ empty.textContent='Gagal memuat data progress.'; });
+}
+
+/* ============================= FIREBASE INIT ============================= */
+/* GANTI dengan config dari Firebase Console kamu (harus SAMA PERSIS dengan yang dipakai di game.html, satu project yang sama). */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyAQUs3U158XWpGrdP4Oeo86w-RCeFEAmZk",
+  authDomain: "ocean-english-adventure.firebaseapp.com",
+  projectId: "ocean-english-adventure",
+  storageBucket: "ocean-english-adventure.firebasestorage.app",
+  messagingSenderId: "814227189611",
+  appId: "1:814227189611:web:d3233c080e1de45447662e"
+};
+async function initDb(){
+  if(!FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.indexOf('PASTE')===0){
+    console.warn('Firebase belum dikonfigurasi (lihat FIREBASE_CONFIG di atas). Fitur berbagi/sinkron nonaktif.');
+    state.dbReady=false;
+  } else {
+    try{
+      firebase.initializeApp(FIREBASE_CONFIG);
+      await new Promise(function(resolve){
+        firebase.auth().onAuthStateChanged(function(user){
+          if(user){ state.db = firebase.firestore(); state.dbReady = true; resolve(); }
+        });
+        firebase.auth().signInAnonymously().catch(function(err){ console.error(err); state.dbReady=false; resolve(); });
+      });
+    }catch(e){ state.dbReady=false; }
+  }
+  if(state.dbReady){
+    try{
+      const snap=await state.db.doc('config/site').get();
+      if(snap.exists){
+        const d=snap.data();
+        if(d.gameUrl && !localStorage.getItem('oel_gameUrl')){ localStorage.setItem('oel_gameUrl', d.gameUrl); applyGameUrlToButtons(); }
+        if(d.defaultYear && !localStorage.getItem('oel_year')){ setYear(d.defaultYear); }
+      }
+    }catch(e){}
+    try{
+      const vsnap=await state.db.collection('content/vocab/items').limit(200).get();
+      extraVocab = vsnap.docs.map(d=>d.data());
+    }catch(e){}
+    try{
+      const qsnap=await state.db.collection('content/practice/items').limit(200).get();
+      extraQuestions = qsnap.docs.map(d=>d.data());
+    }catch(e){}
+  }
+  renderAdmin();
+}
+initDb();
+
+/* ============================= INIT ============================= */
+applyGameUrlToButtons();
+document.querySelectorAll('[data-y]').forEach(c=>c.classList.toggle('sel',c.dataset.y===state.year));
+renderNav();
+showSection('home');
+</script>
+</body>
+</html>

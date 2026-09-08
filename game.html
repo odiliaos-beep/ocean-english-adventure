@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ocean English Adventure</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap">
+<style>
+:root{
+  --ocean-deep:#0B4F6C;
+  --ocean-mid:#01BAEF;
+  --ocean-bright:#5CE1E6;
+  --coral:#FF6B5B;
+  --coral-deep:#E24E3F;
+  --sun:#FFD166;
+  --leaf:#39C87A;
+  --sand:#FFF8EC;
+  --bg-top:#8FE3EE;
+  --bg-bot:#0F7CA8;
+  --surface:#FFFFFF;
+  --surface-2:#F2FBFC;
+  --ink:#0A2E3D;
+  --ink-soft:#3E6472;
+  --card-border:rgba(10,46,61,0.10);
+  --shadow:0 10px 28px rgba(8,40,54,0.18);
+  --shadow-sm:0 4px 12px rgba(8,40,54,0.14);
+  --danger:#E24E3F;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg-top:#03202E;
+    --bg-bot:#01121B;
+    --surface:#0C3A4C;
+    --surface-2:#0A2F3E;
+    --ink:#EAF6F6;
+    --ink-soft:#9FCBD3;
+    --card-border:rgba(255,255,255,0.10);
+    --shadow:0 10px 28px rgba(0,0,0,0.5);
+    --shadow-sm:0 4px 12px rgba(0,0,0,0.45);
+    --sand:#0C3A4C;
+  }
+}
+:root[data-theme="dark"]{
+  --bg-top:#03202E;
+  --bg-bot:#01121B;
+  --surface:#0C3A4C;
+  --surface-2:#0A2F3E;
+  --ink:#EAF6F6;
+  --ink-soft:#9FCBD3;
+  --card-border:rgba(255,255,255,0.10);
+  --shadow:0 10px 28px rgba(0,0,0,0.5);
+  --shadow-sm:0 4px 12px rgba(0,0,0,0.45);
+  --sand:#0C3A4C;
+}
+*{box-sizing:border-box;}
+html,body{height:100%;}
+body{
+  margin:0;
+  font-family:'Nunito',system-ui,sans-serif;
+  color:var(--ink);
+  background:linear-gradient(180deg,var(--bg-top) 0%, var(--bg-bot) 100%);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+h1,h2,h3,.display{font-family:'Baloo 2',system-ui,sans-serif; text-wrap:balance; margin:0;}
+button{font-family:inherit;}
+.bubbles{position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden;}
+.bubble{position:absolute; bottom:-60px; border-radius:50%; background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.85), rgba(255,255,255,.05) 70%); opacity:.55; animation:rise linear infinite;}
+@keyframes rise{ to{ transform:translateY(-115vh) translateX(var(--drift,0px)); opacity:0; } }
+@media (prefers-reduced-motion: reduce){ .bubble{animation:none; display:none;} }
+
+.app{position:relative; z-index:1; min-height:100vh; display:flex; flex-direction:column;}
+.screen{display:none; flex:1; flex-direction:column; padding:20px 16px 40px; max-width:900px; margin:0 auto; width:100%;}
+.screen.active{display:flex;}
+
+.wave-top{position:relative; height:26px; margin-bottom:-2px;}
+.wave-top svg{width:100%; height:100%; display:block;}
+
+.brand{display:flex; align-items:center; gap:10px; justify-content:center; margin:6px 0 4px;}
+.brand .logo{font-size:2.1rem;}
+.brand h1{font-size:1.5rem; color:#fff; text-shadow:0 2px 0 rgba(0,0,0,.15);}
+.tagline{text-align:center; color:rgba(255,255,255,.92); font-weight:700; margin-bottom:22px;}
+
+.card{
+  background:var(--surface);
+  border:1px solid var(--card-border);
+  border-radius:26px;
+  box-shadow:var(--shadow);
+  padding:24px;
+}
+.stack{display:flex; flex-direction:column; gap:14px;}
+.center{display:flex; flex-direction:column; align-items:center; text-align:center;}
+
+.btn{
+  appearance:none; border:none; border-radius:18px; padding:16px 22px;
+  font-family:'Baloo 2',sans-serif; font-weight:700; font-size:1.08rem;
+  cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  box-shadow:var(--shadow-sm); transition:transform .12s ease, box-shadow .12s ease, filter .12s ease;
+  color:#fff;
+}
+.btn:active{transform:translateY(2px) scale(.98); box-shadow:none;}
+.btn:focus-visible{outline:3px solid var(--sun); outline-offset:2px;}
+.btn-primary{background:linear-gradient(180deg,#03C6EE,var(--ocean-mid));}
+.btn-coral{background:linear-gradient(180deg,#FF8A78,var(--coral));}
+.btn-sun{background:linear-gradient(180deg,#FFE08A,var(--sun)); color:var(--ink);}
+.btn-leaf{background:linear-gradient(180deg,#5EE39A,var(--leaf));}
+.btn-ghost{background:var(--surface-2); color:var(--ink); box-shadow:none; border:2px solid var(--card-border);}
+.btn-block{width:100%;}
+.btn-lg{padding:20px 26px; font-size:1.25rem; border-radius:22px;}
+.btn:disabled{opacity:.5; cursor:not-allowed; transform:none;}
+
+input[type=text]{
+  font-family:'Nunito',sans-serif; font-weight:700; font-size:1.1rem;
+  padding:14px 16px; border-radius:14px; border:2px solid var(--card-border);
+  background:var(--surface-2); color:var(--ink); width:100%;
+}
+input[type=text]:focus{outline:3px solid var(--ocean-bright); outline-offset:1px;}
+label{font-weight:800; color:var(--ink-soft); font-size:.85rem; letter-spacing:.03em; text-transform:uppercase;}
+
+.avatar-grid{display:grid; grid-template-columns:repeat(5,1fr); gap:8px;}
+.avatar-choice{font-size:1.7rem; padding:10px 0; border-radius:14px; border:2px solid var(--card-border); background:var(--surface-2); cursor:pointer;}
+.avatar-choice.sel{border-color:var(--ocean-mid); background:rgba(1,186,239,.15); transform:scale(1.06);}
+
+.hud{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 14px; background:rgba(255,255,255,.9); border-radius:20px; box-shadow:var(--shadow-sm); margin-bottom:14px; color:var(--ink);}
+:root[data-theme="dark"] .hud, @media (prefers-color-scheme:dark){ .hud{background:rgba(12,58,76,.9);} }
+.hud-who{display:flex; align-items:center; gap:8px; font-weight:800;}
+.hud-who .av{font-size:1.4rem;}
+.hud-stars{display:flex; align-items:center; gap:6px; font-family:'Baloo 2'; font-weight:700; color:var(--ink); background:var(--surface-2); padding:6px 12px; border-radius:999px;}
+.hud-dots{display:flex; gap:5px;}
+.hud-dot{width:9px; height:9px; border-radius:50%; background:var(--card-border);}
+.hud-dot.on{background:var(--coral);}
+.hud-dot.done{background:var(--leaf);}
+
+.objective{
+  background:linear-gradient(180deg,#FFF3D0,#FFE7A8);
+  color:#6B4A00; border-radius:18px; padding:14px 18px; font-weight:800; text-align:center;
+  font-size:1.15rem; margin-bottom:16px; box-shadow:var(--shadow-sm); font-family:'Baloo 2';
+}
+:root[data-theme="dark"] .objective, @media (prefers-color-scheme:dark){ .objective{background:linear-gradient(180deg,#4A3A0E,#3A2E08); color:#FFE7A8;} }
+
+.toast{position:fixed; left:50%; top:18px; transform:translateX(-50%) translateY(-30px); background:var(--ink); color:#fff; padding:12px 22px; border-radius:999px; font-weight:800; font-family:'Baloo 2'; z-index:50; opacity:0; transition:all .25s ease; box-shadow:var(--shadow); pointer-events:none;}
+.toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+.toast.good{background:var(--leaf);}
+.toast.bad{background:var(--coral-deep);}
+
+.grid-fish{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:6px;}
+@media(min-width:520px){ .grid-fish{grid-template-columns:repeat(4,1fr);} }
+.fish-tile{background:var(--surface-2); border:2px solid var(--card-border); border-radius:18px; padding:10px 4px 6px; cursor:pointer; display:flex; flex-direction:column; align-items:center; transition:transform .1s;}
+.fish-tile:hover{transform:translateY(-2px);}
+.fish-tile.shake{animation:shake .4s;}
+.fish-tile.hide{visibility:hidden;}
+@keyframes shake{ 10%,90%{transform:translateX(-3px);} 20%,80%{transform:translateX(5px);} 30%,50%,70%{transform:translateX(-8px);} 40%,60%{transform:translateX(8px);} }
+.fish-count{font-size:.7rem; font-weight:800; color:var(--ink-soft); margin-top:2px;}
+
+.grid-hunt{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:6px;}
+.hunt-tile{background:var(--surface-2); border:2px solid var(--card-border); border-radius:18px; font-size:2rem; padding:14px 0; cursor:pointer; text-align:center;}
+.hunt-tile.shake{animation:shake .4s;}
+.hunt-tile.gone{opacity:0; pointer-events:none; transform:scale(.5);}
+
+.progressbar{height:22px; border-radius:999px; background:var(--surface-2); border:2px solid var(--card-border); overflow:hidden; margin:8px 0;}
+.progressbar > div{height:100%; background:linear-gradient(90deg,var(--leaf),#7CE8AE); border-radius:999px; transition:width .4s ease;}
+.progress-label{font-weight:800; text-align:center; font-family:'Baloo 2'; color:var(--ink-soft);}
+
+.trash-scene{display:flex; gap:16px; flex-wrap:wrap; justify-content:center; margin:10px 0;}
+.trash-item{font-size:2.6rem; background:var(--surface-2); border:2px solid var(--card-border); border-radius:20px; padding:18px; cursor:pointer;}
+.trash-item.gone{opacity:0; transform:scale(0) rotate(20deg); pointer-events:none;}
+.decor-row{display:flex; gap:10px; justify-content:center; font-size:1.6rem; opacity:.7; margin-top:4px;}
+
+.mc-grid{display:grid; gap:10px; margin-top:14px;}
+.mc-opt{background:var(--surface-2); border:2px solid var(--card-border); border-radius:16px; padding:16px; font-weight:800; font-size:1.05rem; cursor:pointer; text-align:left; display:flex; align-items:center; gap:10px;}
+.mc-opt:hover{border-color:var(--ocean-mid);}
+.mc-opt.correct{background:rgba(57,200,122,.25); border-color:var(--leaf);}
+.mc-opt.wrong{background:rgba(226,78,63,.2); border-color:var(--coral-deep); animation:shake .4s;}
+.mc-letter{background:var(--ocean-mid); color:#fff; border-radius:8px; width:28px; height:28px; display:flex; align-items:center; justify-content:center; font-family:'Baloo 2';}
+
+.track-wrap{background:var(--surface-2); border-radius:20px; padding:18px 10px 26px; margin-top:6px; border:2px solid var(--card-border);}
+.track{position:relative; height:54px; margin:10px 6px 30px;}
+.track-line{position:absolute; top:50%; left:0; right:0; height:6px; background:repeating-linear-gradient(90deg,var(--ocean-bright) 0 10px, transparent 10px 18px); transform:translateY(-50%); border-radius:4px;}
+.track-flag{position:absolute; top:50%; transform:translate(-50%,-50%); font-size:1.3rem;}
+.track-boat{position:absolute; top:50%; font-size:2rem; transform:translate(-50%,-58%); transition:left .6s cubic-bezier(.34,1.56,.64,1);}
+
+.room-code{font-family:'Baloo 2'; font-weight:800; font-size:3rem; letter-spacing:.15em; text-align:center; color:var(--ocean-deep); background:linear-gradient(180deg,#FFF3D0,#FFE7A8); border-radius:20px; padding:14px 10px; margin:10px 0;}
+:root[data-theme="dark"] .room-code, @media (prefers-color-scheme:dark){ .room-code{color:#FFE7A8; background:linear-gradient(180deg,#3A2E08,#2A2206);} }
+
+.player-row{display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:14px; background:var(--surface-2); margin-bottom:8px;}
+.player-row .av{font-size:1.4rem;}
+.player-row .nm{font-weight:800; flex:1;}
+.player-row .st{font-family:'Baloo 2'; font-weight:700; color:var(--ink-soft);}
+.player-row .pill{font-size:.7rem; font-weight:800; padding:2px 8px; border-radius:999px; background:var(--card-border); color:var(--ink-soft);}
+
+.chip-row{display:flex; gap:8px; flex-wrap:wrap; justify-content:center;}
+.chip{padding:8px 16px; border-radius:999px; border:2px solid var(--card-border); background:var(--surface-2); font-weight:800; cursor:pointer;}
+.chip.sel{background:var(--ocean-mid); color:#fff; border-color:var(--ocean-mid);}
+
+.treasure-emoji{font-size:5rem; animation:bob 2.4s ease-in-out infinite;}
+@keyframes bob{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(-10px);} }
+.confetti-wrap{position:relative; height:0;}
+.confetti{position:absolute; top:0; font-size:1.4rem; animation:fall 1.8s ease-in forwards;}
+@keyframes fall{ from{transform:translateY(-20px) rotate(0deg); opacity:1;} to{transform:translateY(220px) rotate(360deg); opacity:0;} }
+
+.small{font-size:.85rem; color:var(--ink-soft); font-weight:700;}
+.linklike{background:none; border:none; color:var(--ocean-mid); font-weight:800; cursor:pointer; text-decoration:underline; padding:4px;}
+.footer-nav{display:flex; gap:10px; margin-top:auto; padding-top:18px;}
+.badge-mode{display:inline-block; background:var(--sun); color:#6B4A00; font-family:'Baloo 2'; font-weight:700; font-size:.8rem; padding:4px 12px; border-radius:999px; margin-bottom:10px;}
+</style>
+</head>
+<body>
+<div class="bubbles" id="bubbles"></div>
+<div class="app">
+
+  <div class="wave-top"><svg viewBox="0 0 400 26" preserveAspectRatio="none"><path d="M0 10 Q50 25 100 10 T200 10 T300 10 T400 10 V26 H0 Z" fill="var(--surface)" opacity="0"></path></svg></div>
+
+  <!-- HOME -->
+  <div class="screen" id="screen-home">
+    <div class="brand"><span class="logo">🌊</span><h1>Ocean English Adventure</h1></div>
+    <div class="tagline">Jelajahi laut, kumpulkan Ocean Stars, dan belajar Bahasa Inggris!</div>
+    <div class="card stack">
+      <button class="btn btn-primary btn-lg btn-block" onclick="go('join_setup')">🐠 Aku Ocean Explorer (Gabung dengan Kode)</button>
+      <button class="btn btn-coral btn-block" onclick="go('host_setup')">🧑‍🏫 Aku Host / Guru (Buat Sesi Baru)</button>
+      <button class="btn btn-ghost btn-block" onclick="startSolo()">⭐ Latihan Sendiri (Practice Solo)</button>
+    </div>
+    <p class="small center" style="margin-top:14px;">Mode multiplayer memakai kode ruangan yang tersinkron otomatis. Jika tidak tersedia di perangkatmu, gunakan Latihan Sendiri — semua permainan tetap bisa dimainkan.</p>
+  </div>
+
+  <!-- JOIN SETUP -->
+  <div class="screen" id="screen-join_setup">
+    <div class="card stack">
+      <h2>Gabung Petualangan 🐚</h2>
+      <div><label>Kode Ruangan</label><input type="text" id="joinCode" maxlength="5" placeholder="cth. FISH" style="text-transform:uppercase;font-family:'Baloo 2';letter-spacing:.1em;text-align:center;font-size:1.4rem;"></div>
+      <div><label>Nama Kamu</label><input type="text" id="joinName" maxlength="18" placeholder="Nama Ocean Explorer"></div>
+      <div><label>Pilih Avatar</label>
+        <div class="avatar-grid" id="avatarGrid"></div>
+      </div>
+      <div id="joinMsg" class="small" style="color:var(--coral-deep); min-height:18px;"></div>
+      <button class="btn btn-primary btn-block" onclick="doJoin()">Gabung! 🌊</button>
+      <button class="btn btn-ghost btn-block" onclick="go('home')">Kembali</button>
+    </div>
+  </div>
+
+  <!-- HOST SETUP -->
+  <div class="screen" id="screen-host_setup">
+    <div class="card stack">
+      <h2>Buat Sesi Baru 🧑‍🏫</h2>
+      <div><label>Level Tahun</label>
+        <div class="chip-row" id="hostYearChips">
+          <button class="chip sel" data-y="y12" onclick="pickHostYear('y12')">🌱 Year 1–2</button>
+          <button class="chip" data-y="y34" onclick="pickHostYear('y34')">🚀 Year 3–4</button>
+        </div>
+      </div>
+      <div id="hostMsg" class="small" style="color:var(--coral-deep); min-height:18px;"></div>
+      <button class="btn btn-coral btn-block" onclick="doCreateRoom()">Buat Kode Ruangan</button>
+      <button class="btn btn-ghost btn-block" onclick="go('home')">Kembali</button>
+    </div>
+  </div>
+
+  <!-- HOST DASHBOARD -->
+  <div class="screen" id="screen-host_dashboard">
+    <div class="card stack">
+      <div class="center">
+        <span class="small">KODE RUANGAN — bagikan ke murid</span>
+        <div class="room-code" id="hdCode">----</div>
+        <span class="small" id="hdYear"></span>
+      </div>
+      <div>
+        <label>Pemain Bergabung (<span id="hdCount">0</span>)</label>
+        <div id="hdPlayers"></div>
+      </div>
+      <div>
+        <label>Tahap Sekarang</label>
+        <div class="objective" id="hdStage">Lobby — menunggu host memulai</div>
+      </div>
+      <div class="stack" id="hdControls"></div>
+      <button class="btn btn-ghost btn-block" onclick="if(confirm('Akhiri sesi ini?'))go('home')">Keluar dari Dashboard Host</button>
+    </div>
+  </div>
+
+  <!-- LOBBY (player waiting) -->
+  <div class="screen" id="screen-lobby">
+    <div class="card stack center">
+      <div class="treasure-emoji">🐠</div>
+      <h2>Menunggu host memulai petualangan...</h2>
+      <p class="small">Kode ruangan: <b id="lobbyCode"></b></p>
+      <div style="width:100%;" id="lobbyPlayers"></div>
+    </div>
+  </div>
+
+  <!-- TUTORIAL -->
+  <div class="screen" id="screen-tutorial">
+    <div class="hud" id="hudBar"></div>
+    <div class="card center stack">
+      <div class="treasure-emoji">🧭</div>
+      <h2>Selamat Datang, Ocean Explorer!</h2>
+      <p>Kamu akan menjelajah dunia bawah laut: <b>Coral Reef → Fish Bay → Deep Sea → Whale Zone → Ocean Treasure</b>.</p>
+      <p>🎯 Jawab tantangan Bahasa Inggris dengan benar untuk mengumpulkan <b>⭐ Ocean Stars</b>.</p>
+      <p>💛 Jawaban salah tidak apa-apa — cukup coba lagi!</p>
+      <button class="btn btn-primary btn-lg" id="tutorialNextBtn" onclick="playerReadyAdvance()">Aku Siap! 🌊</button>
+    </div>
+  </div>
+
+  <!-- GENERIC GAME SCREENS (1-4) share structure, built dynamically -->
+  <div class="screen" id="screen-game1">
+    <div class="hud" id="hud-game1"></div>
+    <div class="objective" id="obj-game1"></div>
+    <div class="card" id="body-game1"></div>
+  </div>
+  <div class="screen" id="screen-game2">
+    <div class="hud" id="hud-game2"></div>
+    <div class="objective" id="obj-game2"></div>
+    <div class="card" id="body-game2"></div>
+  </div>
+  <div class="screen" id="screen-game3">
+    <div class="hud" id="hud-game3"></div>
+    <div class="objective" id="obj-game3"></div>
+    <div class="card" id="body-game3"></div>
+  </div>
+  <div class="screen" id="screen-game4">
+    <div class="hud" id="hud-game4"></div>
+    <div class="objective" id="obj-game4"></div>
+    <div class="card" id="body-game4"></div>
+  </div>
+
+  <!-- FINAL -->
+  <div class="screen" id="screen-final">
+    <div class="hud" id="hud-final"></div>
+    <div class="objective" id="obj-final">Selesaikan tantangan terakhir untuk membuka Peti Harta Karun!</div>
+    <div class="card" id="body-final"></div>
+  </div>
+
+  <!-- ENDED -->
+  <div class="screen" id="screen-ended">
+    <div class="card center stack">
+      <div class="confetti-wrap" id="confettiWrap"></div>
+      <div class="treasure-emoji">🏆</div>
+      <h2>CONGRATULATIONS, OCEAN EXPLORERS!</h2>
+      <h3 style="color:var(--ocean-mid);">YOU SAVED THE OCEAN! 🎉</h3>
+      <div class="hud-stars" id="endedStars" style="font-size:1.3rem;"></div>
+      <div style="width:100%;" id="endedLeaderboard"></div>
+      <a class="btn btn-sun btn-lg" id="endedHubBtn" href="#" target="_blank" rel="noopener">📚 Lanjut ke Ocean English Learning Hub</a>
+      <button class="btn btn-ghost btn-block" onclick="go('home')">Kembali ke Beranda</button>
+    </div>
+  </div>
+
+  <!-- SOLO games use same #screen-game1..4 / tutorial / final with soloMode=true -->
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+/* ============================= DATA ============================= */
+const ANIMALS=[{w:'FISH',e:'🐠'},{w:'OCTOPUS',e:'🐙'},{w:'WHALE',e:'🐋'},{w:'CRAB',e:'🦀'},{w:'STARFISH',e:'⭐'}];
+const THINGS=[{w:'SHELL',e:'🐚'},{w:'CORAL',e:'🪸'},{w:'SEAWEED',e:'🌿'},{w:'ISLAND',e:'🏝️'},{w:'BOAT',e:'🚤'},{w:'OCEAN',e:'🌊'}];
+const TRASH=[{w:'BOTTLE',e:'🧴'},{w:'CAN',e:'🥫'},{w:'PLASTIC BAG',e:'🛍️'},{w:'BOX',e:'📦'}];
+const HUNT_ALL=ANIMALS.concat(THINGS);
+const COLORS=[{n:'RED',h:'#FF5C5C'},{n:'BLUE',h:'#3DA9E0'},{n:'YELLOW',h:'#FFD166'},{n:'GREEN',h:'#39C87A'}];
+const AVATARS=['🐠','🐙','🐋','🦀','⭐','🐚','🦑','🐢','🦈','🐬'];
+const DEFAULT_HUB_URL="./dashboard.html";
+let HUB_URL=localStorage.getItem('oea_hubUrl')||DEFAULT_HUB_URL;
+const STAGES=['tutorial','game1','game2','game3','game4','final'];
+const STAGE_TITLES={lobby:'Lobby — menunggu host memulai',tutorial:'🧭 Tutorial (5 min)',game1:'🐟 Game 1: Find the Fish (10 min)',game2:'🔍 Game 2: Ocean Word Hunt (10 min)',game3:'♻️ Game 3: Save the Ocean (10 min)',game4:'🚤 Game 4: Ocean Quiz Race (10 min)',final:'🏆 Final Ocean Treasure Challenge (5 min)',ended:'✅ Selesai — waktunya materi belajar (10 min)'};
+
+/* ============================= STATE ============================= */
+let db=null, dbReady=false;
+let state={
+  mode:null,           // 'host' | 'player' | 'solo'
+  roomCode:null,
+  playerId:null,
+  name:'', avatar:'🐠',
+  yearLevel:'y12',
+  stars:0, itemsCleaned:0,
+  screen:'home',
+  unsub:[],
+};
+
+function rid(){return Math.random().toString(36).slice(2,10);}
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
+function shuffle(arr){const a=arr.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a;}
+function sample(arr,n){return shuffle(arr).slice(0,n);}
+
+function toast(msg,kind){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast show '+(kind||'');
+  clearTimeout(t._tm); t._tm=setTimeout(()=>t.classList.remove('show'),1400);
+}
+
+function go(screenId){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el=document.getElementById('screen-'+screenId);
+  if(el) el.classList.add('active');
+  state.screen=screenId;
+  window.scrollTo(0,0);
+}
+
+/* ============================= BUBBLES DECOR ============================= */
+(function initBubbles(){
+  const wrap=document.getElementById('bubbles');
+  for(let i=0;i<16;i++){
+    const b=document.createElement('div');
+    const size=8+Math.random()*26;
+    b.className='bubble';
+    b.style.width=size+'px'; b.style.height=size+'px';
+    b.style.left=Math.random()*100+'%';
+    b.style.setProperty('--drift',(Math.random()*60-30)+'px');
+    b.style.animationDuration=(9+Math.random()*10)+'s';
+    b.style.animationDelay=(-Math.random()*18)+'s';
+    wrap.appendChild(b);
+  }
+})();
+
+/* ============================= AVATAR PICKER ============================= */
+(function initAvatarGrid(){
+  const g=document.getElementById('avatarGrid');
+  AVATARS.forEach(a=>{
+    const b=document.createElement('button');
+    b.className='avatar-choice'+(a===state.avatar?' sel':''); b.type='button'; b.textContent=a;
+    b.onclick=()=>{state.avatar=a; g.querySelectorAll('.avatar-choice').forEach(x=>x.classList.remove('sel')); b.classList.add('sel');};
+    g.appendChild(b);
+  });
+})();
+
+/* ============================= FIREBASE INIT ============================= */
+/* GANTI dengan config dari Firebase Console kamu (Project settings > General > Your apps > SDK setup and configuration). */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyAQUs3U158XWpGrdP4Oeo86w-RCeFEAmZk",
+  authDomain: "ocean-english-adventure.firebaseapp.com",
+  projectId: "ocean-english-adventure",
+  storageBucket: "ocean-english-adventure.firebasestorage.app",
+  messagingSenderId: "814227189611",
+  appId: "1:814227189611:web:d3233c080e1de45447662e"
+};
+(function initFirebase(){
+  if(!FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.indexOf('PASTE')===0){
+    console.warn('Firebase belum dikonfigurasi (lihat FIREBASE_CONFIG di atas). Mode multiplayer nonaktif — gunakan Latihan Sendiri.');
+    dbReady=false;
+    return;
+  }
+  try{
+    firebase.initializeApp(FIREBASE_CONFIG);
+    firebase.auth().onAuthStateChanged(function(user){
+      if(user){
+        db = firebase.firestore();
+        dbReady = true;
+      } else {
+        db = null; dbReady = false;
+      }
+    });
+    firebase.auth().signInAnonymously().catch(function(err){
+      console.error('Firebase anonymous sign-in gagal:', err);
+      dbReady=false;
+    });
+  }catch(e){
+    console.error('Firebase init error:', e);
+    dbReady=false;
+  }
+})();
+
+/* ============================= HUD RENDER ============================= */
+function stageIndex(stage){return STAGES.indexOf(stage);}
+function renderHud(targetId, stage){
+  const el=document.getElementById(targetId);
+  if(!el) return;
+  const idx=stageIndex(stage);
+  let dots='';
+  STAGES.forEach((s,i)=>{
+    let cls='hud-dot'; if(i<idx) cls+=' done'; else if(i===idx) cls+=' on';
+    dots+=`<span class="${cls}"></span>`;
+  });
+  el.innerHTML=`
+    <div class="hud-who"><span class="av">${state.avatar}</span><span>${escapeHtml(state.name||'Explorer')}</span></div>
+    <div class="hud-dots">${dots}</div>
+    <div class="hud-stars">⭐ ${state.stars}</div>`;
+}
+function escapeHtml(s){return (s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+/* ============================= SVG FISH ============================= */
+function fishSVG(color,px){
+  return `<svg viewBox="0 0 100 60" width="${px}" height="${px*0.62}">
+    <polygon points="76,30 98,14 98,46" fill="${color}" opacity=".85"/>
+    <ellipse cx="42" cy="30" rx="34" ry="21" fill="${color}"/>
+    <polygon points="30,12 42,20 20,20" fill="${color}" opacity=".85"/>
+    <circle cx="20" cy="25" r="4.5" fill="#0A2E3D"/>
+    <circle cx="21.2" cy="23.8" r="1.4" fill="#fff"/>
+  </svg>`;
+}
+
+/* ================================================================
+   HOME / JOIN / HOST SETUP
+   ================================================================ */
+function pickHostYear(y){
+  state.yearLevel=y;
+  document.querySelectorAll('#hostYearChips .chip').forEach(c=>c.classList.toggle('sel',c.dataset.y===y));
+}
+
+async function doCreateRoom(){
+  const msg=document.getElementById('hostMsg'); msg.textContent='';
+  if(!dbReady){ msg.textContent='Mode multiplayer tidak tersedia di perangkat ini. Gunakan Latihan Sendiri, atau buka lewat Claude dengan akses database aktif.'; return; }
+  const code=genRoomCode();
+  try{
+    await db.doc('rooms/'+code).set({stage:'lobby', yearLevel:state.yearLevel, createdAt:Date.now(), cleanupGoal:30});
+  }catch(e){ msg.textContent='Gagal membuat ruangan. Coba lagi.'; return; }
+  state.mode='host'; state.roomCode=code;
+  go('host_dashboard');
+  hostSubscribe();
+}
+function genRoomCode(){
+  const letters='ABCDEFGHJKLMNPQRSTUVWXYZ';
+  let c=''; for(let i=0;i<4;i++) c+=letters[Math.floor(Math.random()*letters.length)];
+  return c;
+}
+
+function hostSubscribe(){
+  document.getElementById('hdCode').textContent=state.roomCode;
+  document.getElementById('hdYear').textContent = state.yearLevel==='y12' ? '🌱 Year 1–2' : '🚀 Year 3–4';
+  clearUnsub();
+  const roomRef=db.doc('rooms/'+state.roomCode);
+  const u1=roomRef.onSnapshot(snap=>{
+    if(!snap.exists) return;
+    const d=snap.data();
+    document.getElementById('hdStage').textContent = STAGE_TITLES[d.stage]||d.stage;
+    renderHostControls(d.stage);
+  });
+  const playersRef=db.collection('rooms/'+state.roomCode+'/players').orderBy('joinedAt','asc').limit(60);
+  const u2=playersRef.onSnapshot(snap=>{
+    document.getElementById('hdCount').textContent=snap.size;
+    let html='';
+    snap.docs.forEach(doc=>{
+      const p=doc.data();
+      html+=`<div class="player-row"><span class="av">${p.avatar||'🐠'}</span><span class="nm">${escapeHtml(p.name||'Explorer')}</span><span class="pill">${STAGE_TITLES[p.activity]?p.activity:(p.activity||'lobby')}</span><span class="st">⭐ ${p.stars||0}</span></div>`;
+    });
+    document.getElementById('hdPlayers').innerHTML = html || '<p class="small">Belum ada pemain bergabung.</p>';
+  });
+  state.unsub.push(u1,u2);
+}
+function clearUnsub(){ state.unsub.forEach(u=>{try{u();}catch(e){}}); state.unsub=[]; }
+
+function renderHostControls(stage){
+  const idx=STAGES.indexOf(stage);
+  const el=document.getElementById('hdControls');
+  let html='';
+  if(stage==='lobby'){
+    html+=`<button class="btn btn-primary btn-block" onclick="hostAdvance('tutorial')">▶️ Mulai Sesi (Tutorial)</button>`;
+  } else if(stage==='ended'){
+    html+=`<p class="small">Sesi selesai. Lanjutkan dengan materi belajar di Ocean English Learning Hub.</p>`;
+  } else {
+    const next = idx+1<STAGES.length ? STAGES[idx+1] : 'ended';
+    const nextLabel = next==='ended' ? '🏁 Selesaikan Sesi' : '⏭ Lanjut: '+STAGE_TITLES[next];
+    html+=`<button class="btn btn-coral btn-block" onclick="hostAdvance('${next}')">${nextLabel}</button>`;
+  }
+  el.innerHTML=html;
+}
+async function hostAdvance(stage){
+  if(!db||!state.roomCode) return;
+  await db.doc('rooms/'+state.roomCode).update({stage});
+}
+
+function go_joinSetup(){ go('join_setup'); }
+
+async function doJoin(){
+  const msg=document.getElementById('joinMsg'); msg.textContent='';
+  const code=(document.getElementById('joinCode').value||'').trim().toUpperCase();
+  const name=(document.getElementById('joinName').value||'').trim();
+  if(!code){ msg.textContent='Masukkan kode ruangan.'; return; }
+  if(!name){ msg.textContent='Masukkan nama kamu.'; return; }
+  if(!dbReady){ msg.textContent='Multiplayer tidak tersedia di perangkat ini. Coba Latihan Sendiri.'; return; }
+  let roomSnap;
+  try{ roomSnap = await db.doc('rooms/'+code).get(); }catch(e){ msg.textContent='Gagal terhubung. Coba lagi.'; return; }
+  if(!roomSnap.exists){ msg.textContent='Kode ruangan tidak ditemukan. Cek lagi dengan host.'; return; }
+  const room=roomSnap.data();
+  state.mode='player'; state.roomCode=code; state.name=name; state.yearLevel=room.yearLevel||'y12';
+  const key='oea_pid_'+code;
+  let pid=localStorage.getItem(key);
+  if(!pid){ pid=rid(); localStorage.setItem(key,pid); }
+  state.playerId=pid;
+  try{
+    await db.doc('rooms/'+code+'/players/'+pid).set({
+      name:state.name, avatar:state.avatar, stars:0, itemsCleaned:0, activity:'lobby', joinedAt:Date.now()
+    });
+  }catch(e){ msg.textContent='Gagal bergabung. Coba lagi.'; return; }
+  state.stars=0; state.itemsCleaned=0;
+  document.getElementById('lobbyCode').textContent=code;
+  go('lobby');
+  playerSubscribeRoom();
+}
+
+function playerSubscribeRoom(){
+  clearUnsub();
+  const roomRef=db.doc('rooms/'+state.roomCode);
+  const u1=roomRef.onSnapshot(snap=>{
+    if(!snap.exists) return;
+    const d=snap.data();
+    state.yearLevel=d.yearLevel||state.yearLevel;
+    state.cleanupGoal=d.cleanupGoal||30;
+    onStageChange(d.stage);
+  });
+  const playersRef=db.collection('rooms/'+state.roomCode+'/players').orderBy('joinedAt','asc').limit(60);
+  const u2=playersRef.onSnapshot(snap=>{
+    if(state.screen==='lobby'){
+      let html='';
+      snap.docs.forEach(doc=>{const p=doc.data(); html+=`<div class="player-row"><span class="av">${p.avatar||'🐠'}</span><span class="nm">${escapeHtml(p.name)}</span></div>`;});
+      document.getElementById('lobbyPlayers').innerHTML=html;
+    }
+    state._roster = snap.docs.map(d=>d.data());
+  });
+  const u3=playersRef.onSnapshot(snap=>{
+    let total=0; snap.docs.forEach(d=>total+=(d.data().itemsCleaned||0));
+    state._sharedCleaned=total;
+    if(state.screen==='game3' && typeof window._game3UpdateShared==='function') window._game3UpdateShared(total);
+  });
+  state.unsub.push(u1,u2,u3);
+}
+
+let lastStage=null;
+function onStageChange(stage){
+  if(stage===lastStage) return;
+  lastStage=stage;
+  if(!STAGES.includes(stage) && stage!=='ended' && stage!=='lobby') return;
+  if(stage==='lobby'){ go('lobby'); return; }
+  if(stage==='ended'){ renderEnded(); go('ended'); return; }
+  updateMyActivity(stage);
+  if(stage==='tutorial'){ renderHud('hudBar','tutorial'); go('tutorial'); return; }
+  if(stage==='game1'){ go('game1'); startGame1(); return; }
+  if(stage==='game2'){ go('game2'); startGame2(); return; }
+  if(stage==='game3'){ go('game3'); startGame3(); return; }
+  if(stage==='game4'){ go('game4'); startGame4(); return; }
+  if(stage==='final'){ go('final'); startFinal(); return; }
+}
+function updateMyActivity(stage){
+  if(state.mode==='player' && db && state.roomCode){
+    db.doc('rooms/'+state.roomCode+'/players/'+state.playerId).update({activity:stage}).catch(()=>{});
+  }
+}
+function playerReadyAdvance(){
+  // In multiplayer, host controls pacing; button just confirms readiness.
+  if(state.mode==='solo'){ soloAdvance(); return; }
+  toast('Menunggu host memulai Game 1...','good');
+  document.getElementById('tutorialNextBtn').disabled=true;
+  document.getElementById('tutorialNextBtn').textContent='Menunggu host... ⏳';
+}
+
+/* ================================================================
+   SOLO MODE
+   ================================================================ */
+let soloIdx=0;
+function startSolo(){
+  state.mode='solo'; state.name='Explorer'; state.stars=0; state.itemsCleaned=0; state.cleanupGoal=15;
+  soloIdx=0;
+  renderHud('hudBar','tutorial');
+  go('tutorial');
+}
+function soloAdvance(){
+  soloIdx++;
+  const stage=STAGES[soloIdx];
+  if(!stage){ renderEnded(); go('ended'); return; }
+  if(stage==='game1'){ go('game1'); startGame1(); return; }
+  if(stage==='game2'){ go('game2'); startGame2(); return; }
+  if(stage==='game3'){ go('game3'); startGame3(); return; }
+  if(stage==='game4'){ go('game4'); startGame4(); return; }
+  if(stage==='final'){ go('final'); startFinal(); return; }
+}
+function nextAfterGame(){
+  if(state.mode==='solo'){ soloAdvance(); }
+  else { toast('Menunggu host melanjutkan ke tahap berikutnya...','good'); }
+}
+
+/* ================================================================
+   STAR / CLEANUP HELPERS
+   ================================================================ */
+async function addStars(n){
+  state.stars+=n;
+  ['hudBar','hud-game1','hud-game2','hud-game3','hud-game4','hud-final'].forEach(id=>{
+    if(document.getElementById(id)) renderHud(id, currentStageForHud());
+  });
+  if(state.mode==='player' && db){
+    db.doc('rooms/'+state.roomCode+'/players/'+state.playerId).update({stars:state.stars}).catch(()=>{});
+  }
+}
+function currentStageForHud(){
+  const map={'screen-tutorial':'tutorial','screen-game1':'game1','screen-game2':'game2','screen-game3':'game3','screen-game4':'game4','screen-final':'final'};
+  return map['screen-'+state.screen]||'tutorial';
+}
+async function addCleaned(n){
+  state.itemsCleaned+=n;
+  if(state.mode==='player' && db){
+    db.doc('rooms/'+state.roomCode+'/players/'+state.playerId).update({itemsCleaned:state.itemsCleaned}).catch(()=>{});
+  }
+}
+
+/* ================================================================
+   GAME 1 — FIND THE FISH
+   ================================================================ */
+function startGame1(){
+  renderHud('hud-game1','game1');
+  document.getElementById('obj-game1').textContent='📍 Coral Reef';
+  game1Round();
+}
+let g1Round=0, g1Total=6;
+function game1Round(){
+  g1Round=0;
+  nextG1Round();
+}
+function nextG1Round(){
+  if(g1Round>=g1Total){ finishGame1(); return; }
+  g1Round++;
+  const body=document.getElementById('body-game1');
+  const count=9;
+  const fishes=[];
+  for(let i=0;i<count;i++){
+    fishes.push({color:pick(COLORS), size: pick(state.yearLevel==='y34'?[46,58,70]:[50,64]) });
+  }
+  let type, target, instruction, needClicks=1;
+  const y34 = state.yearLevel==='y34';
+  const kinds = y34 ? ['color','size','count','colorsize'] : ['color','size'];
+  type = pick(kinds);
+  if(type==='color'){
+    target = pick(COLORS);
+    fishes[0]={...fishes[0], color:target};
+    instruction = `Find the <b>${target.n}</b> fish!`;
+  } else if(type==='size'){
+    const wantBig = Math.random()<0.5;
+    const maxSz=Math.max(...fishes.map(f=>f.size)), minSz=Math.min(...fishes.map(f=>f.size));
+    target = wantBig?maxSz:minSz;
+    instruction = wantBig? 'Find the <b>BIGGEST</b> fish!' : 'Find the <b>SMALLEST</b> fish!';
+    type='size'; target={val:target};
+  } else if(type==='count'){
+    target = pick(COLORS);
+    needClicks = 3;
+    let c=0; fishes.forEach(f=>{ if(f.color.n===target.n) c++; });
+    while(c<needClicks){ const idx=Math.floor(Math.random()*fishes.length); if(fishes[idx].color.n!==target.n){fishes[idx].color=target; c++;} }
+    instruction = `Find three <b>${target.n}</b> fish!`;
+  } else {
+    const col=pick(COLORS); const wantSmall=Math.random()<0.5;
+    fishes.forEach(f=>{ if(f.color.n===col.n) f.color=pick(COLORS.filter(c=>c.n!==col.n)); });
+    const szList = wantSmall? [46,50] : [66,70];
+    const otherSz = wantSmall? [58,70] : [46,58];
+    fishes[0].color=col; fishes[0].size=pick(szList);
+    for(let i=1;i<fishes.length;i++){ if(fishes[i].color.n===col.n) fishes[i].color=pick(COLORS.filter(c=>c.n!==col.n)); }
+    instruction = `Find the ${wantSmall?'small':'big'} <b>${col.n}</b> fish!`;
+    type='colorsize'; target={color:col, small:wantSmall};
+  }
+  document.getElementById('obj-game1').innerHTML=`📍 Coral Reef — ${instruction}`;
+  let needed = needClicks, gotClicks=0;
+  let html=`<div class="grid-fish">`;
+  fishes.forEach((f,i)=>{
+    html+=`<div class="fish-tile" data-i="${i}">${fishSVG(f.color.h,f.size)}<span class="fish-count">${f.color.n.toLowerCase()}</span></div>`;
+  });
+  html+=`</div><p class="small center" style="margin-top:10px;">Round ${g1Round} / ${g1Total}</p>`;
+  body.innerHTML=html;
+  body.querySelectorAll('.fish-tile').forEach(tile=>{
+    tile.onclick=()=>{
+      const i=+tile.dataset.i; const f=fishes[i];
+      let ok=false;
+      if(type==='color') ok = f.color.n===target.n;
+      else if(type==='size') ok = f.size===target.val;
+      else if(type==='count') ok = f.color.n===target.n;
+      else if(type==='colorsize') ok = f.color.n===target.color.n && (target.small? f.size<=50 : f.size>=66);
+      if(ok){
+        tile.classList.add('hide');
+        gotClicks++;
+        addStars(10); toast(needed>1?`Great! ${gotClicks}/${needed}`:'Correct! +10 ⭐','good');
+        if(gotClicks>=needed){ setTimeout(nextG1Round,500); }
+      } else {
+        tile.classList.add('shake'); toast('Try again!','bad');
+        setTimeout(()=>tile.classList.remove('shake'),400);
+      }
+    };
+  });
+}
+function finishGame1(){
+  document.getElementById('body-game1').innerHTML=`<div class="center stack"><div class="treasure-emoji">🐠</div><h3>Coral Reef selesai!</h3><p>Kamu menemukan semua ikan. Lanjut ke Ocean Word Hunt.</p><button class="btn btn-primary btn-lg" onclick="nextAfterGame()">${state.mode==='solo'?'Lanjut ▶️':'Menunggu host...'}</button></div>`;
+}
+
+/* ================================================================
+   GAME 2 — OCEAN WORD HUNT
+   ================================================================ */
+let g2Round=0, g2Total=6, g2StartT=0;
+function startGame2(){
+  renderHud('hud-game2','game2');
+  g2Round=0;
+  nextG2Round();
+}
+function nextG2Round(){
+  if(g2Round>=g2Total){ finishGame2(); return; }
+  g2Round++;
+  const target=pick(HUNT_ALL);
+  document.getElementById('obj-game2').innerHTML=`🔍 Find a <b>${target.w}</b>!`;
+  const tileCount=12;
+  let items=[target];
+  while(items.length<tileCount){ const c=pick(HUNT_ALL.concat(TRASH)); items.push(c); }
+  items=shuffle(items);
+  const body=document.getElementById('body-game2');
+  let html=`<div class="grid-hunt">`;
+  items.forEach((it,i)=>{ html+=`<div class="hunt-tile" data-i="${i}">${it.e}</div>`; });
+  html+=`</div><p class="small center" style="margin-top:10px;">Round ${g2Round} / ${g2Total}</p>`;
+  body.innerHTML=html;
+  g2StartT=Date.now();
+  body.querySelectorAll('.hunt-tile').forEach(tile=>{
+    tile.onclick=()=>{
+      const i=+tile.dataset.i;
+      if(items[i].w===target.w){
+        tile.classList.add('gone');
+        const fast=(Date.now()-g2StartT)<3500;
+        addStars(fast?15:10);
+        toast(fast?'Fast find! +15 ⭐':'Found it! +10 ⭐','good');
+        setTimeout(nextG2Round,450);
+      } else {
+        tile.classList.add('shake'); toast('Try again!','bad');
+        setTimeout(()=>tile.classList.remove('shake'),400);
+      }
+    };
+  });
+}
+function finishGame2(){
+  document.getElementById('body-game2').innerHTML=`<div class="center stack"><div class="treasure-emoji">🔍</div><h3>Ocean Word Hunt selesai!</h3><p>Semua benda laut ditemukan. Lanjut ke Save the Ocean.</p><button class="btn btn-primary btn-lg" onclick="nextAfterGame()">${state.mode==='solo'?'Lanjut ▶️':'Menunggu host...'}</button></div>`;
+}
+
+/* ================================================================
+   GAME 3 — SAVE THE OCEAN
+   ================================================================ */
+let g3Goal=15, g3Placed=[];
+function startGame3(){
+  renderHud('hud-game3','game3');
+  g3Goal = state.mode==='player' ? (state.cleanupGoal||30) : 15;
+  document.getElementById('obj-game3').textContent='♻️ Deep Sea — Bersihkan sampah laut bersama!';
+  window._game3UpdateShared = updateGame3Progress;
+  renderGame3Scene();
+  updateGame3Progress(state.mode==='player'?(state._sharedCleaned||0):state.itemsCleaned);
+}
+function renderGame3Scene(){
+  const body=document.getElementById('body-game3');
+  const scene=sample(TRASH.concat(TRASH),4);
+  let html=`<div id="g3progressWrap"><div class="progress-label" id="g3label">OCEAN CLEANING: 0 / ${g3Goal}</div><div class="progressbar"><div id="g3fill" style="width:0%"></div></div></div>`;
+  html+=`<div class="trash-scene" id="g3scene">`;
+  scene.forEach((t,i)=>{ html+=`<div class="trash-item" data-i="${i}" data-w="${t.w}">${t.e}</div>`; });
+  html+=`</div><div class="decor-row">🐠 🪸 🐚 🌿 🐡</div><div id="g3modal"></div>`;
+  body.innerHTML=html;
+  body.querySelectorAll('.trash-item').forEach(el=>{
+    el.onclick=()=>openG3Challenge(el, el.dataset.w);
+  });
+}
+function openG3Challenge(el,word){
+  if(el.classList.contains('gone')) return;
+  const correctItem = TRASH.find(t=>t.w===word);
+  const distract = sample(THINGS.concat(ANIMALS),2);
+  const opts = shuffle([correctItem, ...distract]);
+  const modal=document.getElementById('g3modal');
+  modal.innerHTML=`<div class="card" style="margin-top:14px;"><h3 style="text-align:center;">What is this? ${correctItem.e}</h3><div class="mc-grid">${opts.map((o,i)=>`<div class="mc-opt" data-w="${o.w}"><span class="mc-letter">${String.fromCharCode(65+i)}</span>${o.w}</div>`).join('')}</div></div>`;
+  modal.querySelectorAll('.mc-opt').forEach(opt=>{
+    opt.onclick=async ()=>{
+      if(opt.dataset.w===word){
+        opt.classList.add('correct');
+        el.classList.add('gone');
+        addStars(10); addCleaned(1);
+        toast('Collected! +10 ⭐','good');
+        setTimeout(()=>{ modal.innerHTML=''; afterG3Collect(); },500);
+      } else {
+        opt.classList.add('wrong'); toast('Try again!','bad');
+      }
+    };
+  });
+}
+function afterG3Collect(){
+  const localTotal = state.mode==='player' ? (state._sharedCleaned||0)+1 : state.itemsCleaned;
+  updateGame3Progress(localTotal);
+  const scene=document.getElementById('g3scene');
+  const remaining=[...scene.querySelectorAll('.trash-item')].filter(e=>!e.classList.contains('gone'));
+  if(remaining.length===0 && localTotal<g3Goal){ renderGame3Scene(); updateGame3Progress(localTotal); }
+  if(localTotal>=g3Goal){ finishGame3(); }
+}
+function updateGame3Progress(n){
+  const goalEl=document.getElementById('g3label'), fillEl=document.getElementById('g3fill');
+  if(!goalEl) return;
+  const shown=Math.min(n,g3Goal);
+  goalEl.textContent=`OCEAN CLEANING: ${shown} / ${g3Goal}`;
+  fillEl.style.width=Math.round(shown/g3Goal*100)+'%';
+  if(shown>=g3Goal && state.screen==='game3'){ finishGame3(); }
+}
+function finishGame3(){
+  document.getElementById('body-game3').innerHTML=`<div class="center stack"><div class="treasure-emoji">🎉</div><h3>YOU SAVED THE OCEAN!</h3><p>Laut sudah bersih dari sampah. Lanjut ke Ocean Quiz Race.</p><button class="btn btn-primary btn-lg" onclick="nextAfterGame()">${state.mode==='solo'?'Lanjut ▶️':'Menunggu host...'}</button></div>`;
+}
+
+/* ================================================================
+   GAME 4 — OCEAN QUIZ RACE
+   ================================================================ */
+const QUIZ_Y12=[
+  {q:'Which animal is BIG?',opts:['Fish','Whale','Crab'],a:'Whale'},
+  {q:'Which color is the sky?',opts:['Blue','Red','Green'],a:'Blue'},
+  {q:'How many legs does a crab have?',opts:['Two','Eight','Ten'],a:'Ten'},
+  {q:'Which animal has eight arms?',opts:['Octopus','Whale','Starfish'],a:'Octopus'},
+  {q:'Opposite of FAST is...',opts:['Slow','Big','Long'],a:'Slow'},
+  {q:'Which one can you find in the sand?',opts:['Shell','Boat','Cloud'],a:'Shell'},
+];
+const QUIZ_Y34=[
+  {q:'"The whale is swimming." What is the whale doing?',opts:['Sleeping','Swimming','Eating'],a:'Swimming'},
+  {q:'Which sentence is correct?',opts:['The fish is blue.','Blue fish the is.','Is fish the blue.'],a:'The fish is blue.'},
+  {q:'A crab is usually...',opts:['small and fast','the biggest animal','a kind of coral'],a:'small and fast'},
+  {q:'"I can see a whale." — who is speaking about?',opts:['A whale','A crab','An island'],a:'A whale'},
+  {q:'Which word describes SIZE?',opts:['Big','Blue','Fast'],a:'Big'},
+  {q:'Octopuses are known for being...',opts:['very clever','very slow','very small'],a:'very clever'},
+];
+let g4Idx=0, g4Total=6, g4Bank=[];
+function startGame4(){
+  renderHud('hud-game4','game4');
+  document.getElementById('obj-game4').textContent='🚤 Ocean Quiz Race — pilih jalur yang benar!';
+  g4Bank = shuffle(state.yearLevel==='y34'?QUIZ_Y34:QUIZ_Y12);
+  g4Idx=0;
+  renderTrack();
+  askG4();
+}
+function renderTrack(){
+  const body=document.getElementById('body-game4');
+  let flags='';
+  for(let i=0;i<=g4Total;i++){ flags+=`<span class="track-flag" style="left:${i/g4Total*100}%;">${i===g4Total?'🏝️':'🚩'}</span>`; }
+  body.innerHTML=`<div class="track-wrap"><div class="track"><div class="track-line"></div>${flags}<span class="track-boat" id="g4boat" style="left:0%;">🚤</span></div><div id="g4qwrap"></div></div>`;
+}
+function askG4(){
+  if(g4Idx>=g4Total){ finishGame4(); return; }
+  const item = g4Bank[g4Idx % g4Bank.length];
+  const opts = shuffle(item.opts);
+  const wrap=document.getElementById('g4qwrap');
+  wrap.innerHTML=`<h3 style="text-align:center;">${item.q}</h3><div class="mc-grid">${opts.map((o,i)=>`<div class="mc-opt" data-o="${escapeHtml(o)}"><span class="mc-letter">${String.fromCharCode(65+i)}</span>${o}</div>`).join('')}</div>`;
+  wrap.querySelectorAll('.mc-opt').forEach(opt=>{
+    opt.onclick=()=>{
+      if(opt.dataset.o===item.a){
+        opt.classList.add('correct');
+        addStars(10);
+        g4Idx++;
+        document.getElementById('g4boat').style.left=(g4Idx/g4Total*100)+'%';
+        setTimeout(askG4,550);
+      } else {
+        opt.classList.add('wrong'); toast('Try again!','bad');
+      }
+    };
+  });
+}
+function finishGame4(){
+  document.getElementById('g4qwrap').innerHTML=`<div class="center stack"><div class="treasure-emoji">🏁</div><h3>Kamu sampai di Ocean Treasure!</h3><button class="btn btn-primary btn-lg" onclick="nextAfterGame()">${state.mode==='solo'?'Lanjut ▶️':'Menunggu host...'}</button></div>`;
+}
+
+/* ================================================================
+   FINAL CHALLENGE
+   ================================================================ */
+const FINAL_QS=[
+  {q:'What is this? 🐠',opts:['Fish','Whale','Boat'],a:'Fish'},
+  {q:'Is a whale big or small?',opts:['Big','Small'],a:'Big'},
+  {q:'What animal has eight arms?',opts:['Octopus','Crab','Starfish'],a:'Octopus'},
+  {q:'What is this? 🐚',opts:['Shell','Coral','Seaweed'],a:'Shell'},
+  {q:'The crab is...',opts:['small','a boat','blue only'],a:'small'},
+];
+let gfIdx=0;
+function startFinal(){
+  renderHud('hud-final','final');
+  gfIdx=0;
+  askFinal();
+}
+function askFinal(){
+  const body=document.getElementById('body-final');
+  if(gfIdx>=FINAL_QS.length){
+    body.innerHTML=`<div class="center stack"><div class="treasure-emoji">📦</div><h3>Membuka Peti Harta Karun...</h3><button class="btn btn-sun btn-lg" onclick="openTreasure()">Buka Peti! ✨</button></div>`;
+    return;
+  }
+  const item=FINAL_QS[gfIdx];
+  const opts=shuffle(item.opts);
+  body.innerHTML=`<div class="stack"><p class="small center">Tantangan ${gfIdx+1} / ${FINAL_QS.length}</p><h3 style="text-align:center;">${item.q}</h3><div class="mc-grid">${opts.map((o,i)=>`<div class="mc-opt" data-o="${escapeHtml(o)}"><span class="mc-letter">${String.fromCharCode(65+i)}</span>${o}</div>`).join('')}</div></div>`;
+  body.querySelectorAll('.mc-opt').forEach(opt=>{
+    opt.onclick=()=>{
+      if(opt.dataset.o===item.a){
+        opt.classList.add('correct'); addStars(15);
+        gfIdx++; setTimeout(askFinal,500);
+      } else { opt.classList.add('wrong'); toast('Try again!','bad'); }
+    };
+  });
+}
+function openTreasure(){
+  if(state.mode==='solo'){ renderEnded(); go('ended'); return; }
+  toast('Menunggu host menyelesaikan sesi...','good');
+  document.getElementById('body-final').innerHTML=`<div class="center stack"><div class="treasure-emoji">🏆</div><h3>Hebat! Menunggu host menyelesaikan sesi untuk semua...</h3></div>`;
+  if(state.mode==='player' && db){
+    hostAdvanceIfHost();
+  }
+}
+function hostAdvanceIfHost(){}
+
+/* ================================================================
+   ENDED / LEADERBOARD
+   ================================================================ */
+function renderEnded(){
+  document.getElementById('endedStars').textContent = `⭐ Total Ocean Stars kamu: ${state.stars}`;
+  const hub=document.getElementById('endedHubBtn');
+  hub.href = HUB_URL || '#';
+  if(!HUB_URL) hub.style.display='none'; else hub.style.display='inline-flex';
+  spawnConfetti();
+  const lb=document.getElementById('endedLeaderboard');
+  lb.innerHTML='';
+  if(state.mode==='player' && state.roomCode && db){
+    db.collection('rooms/'+state.roomCode+'/players').orderBy('stars','desc').limit(10).get().then(snap=>{
+      let html='<label>Papan Peringkat Kelas</label>';
+      snap.docs.forEach((d,i)=>{const p=d.data(); html+=`<div class="player-row"><span>${i+1}.</span><span class="av">${p.avatar||'🐠'}</span><span class="nm">${escapeHtml(p.name)}</span><span class="st">⭐ ${p.stars||0}</span></div>`;});
+      lb.innerHTML=html;
+    }).catch(()=>{});
+  }
+}
+function spawnConfetti(){
+  const wrap=document.getElementById('confettiWrap');
+  wrap.innerHTML='';
+  const bits=['🎉','⭐','🐠','🎊','💙','🟡'];
+  for(let i=0;i<18;i++){
+    const s=document.createElement('span');
+    s.className='confetti'; s.textContent=pick(bits);
+    s.style.left=(Math.random()*100)+'%';
+    s.style.animationDelay=(Math.random()*0.6)+'s';
+    wrap.appendChild(s);
+  }
+}
+
+/* ================================================================
+   INIT
+   ================================================================ */
+go('home');
+</script>
+</body>
+</html>
