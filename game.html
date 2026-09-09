@@ -204,10 +204,28 @@ label{font-weight:800; color:var(--ink-soft); font-size:.85rem; letter-spacing:.
 .linklike{background:none; border:none; color:var(--ocean-mid); font-weight:800; cursor:pointer; text-decoration:underline; padding:4px;}
 .footer-nav{display:flex; gap:10px; margin-top:auto; padding-top:18px;}
 .badge-mode{display:inline-block; background:var(--sun); color:#6B4A00; font-family:'Baloo 2'; font-weight:700; font-size:.8rem; padding:4px 12px; border-radius:999px; margin-bottom:10px;}
+
+.hud{flex-wrap:wrap; row-gap:8px;}
+.play-layout{display:flex; gap:16px; align-items:flex-start;}
+.game-main{flex:1; min-width:0;}
+.leaderboard-panel{flex:0 0 220px; background:var(--surface); border:1px solid var(--card-border); border-radius:20px; box-shadow:var(--shadow-sm); padding:14px; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow-y:auto;}
+.leaderboard-panel h4{font-family:'Baloo 2'; font-size:.95rem; margin:0 0 10px; color:var(--ink-soft);}
+.lb-row{display:flex; align-items:center; gap:6px; padding:6px 6px; border-radius:10px; font-size:.82rem; font-weight:800;}
+.lb-row.me{background:rgba(1,186,239,.15);}
+.lb-rank{width:18px; text-align:center; color:var(--ink-soft); flex:0 0 auto;}
+.lb-name{flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+@media(max-width:760px){
+  .play-layout{flex-direction:column;}
+  .leaderboard-panel{flex:0 0 auto; width:100%; position:static; max-height:none;}
+}
+.exit-btn{position:fixed; top:12px; left:12px; z-index:60; background:var(--surface); border:2px solid var(--card-border); border-radius:999px; width:44px; height:44px; display:none; align-items:center; justify-content:center; font-size:1.3rem; cursor:pointer; box-shadow:var(--shadow-sm);}
+.exit-btn:hover{border-color:var(--coral-deep);}
+.screen.wide{max-width:1100px;}
 </style>
 </head>
 <body>
 <div class="bubbles" id="bubbles"></div>
+<button class="exit-btn" id="exitBtn" onclick="exitToHub()" title="Keluar ke Dashboard">🚪</button>
 <div class="app">
 
   <div class="wave-top"><svg viewBox="0 0 400 26" preserveAspectRatio="none"><path d="M0 10 Q50 25 100 10 T200 10 T300 10 T400 10 V26 H0 Z" fill="var(--surface)" opacity="0"></path></svg></div>
@@ -263,15 +281,11 @@ label{font-weight:800; color:var(--ink-soft); font-size:.85rem; letter-spacing:.
         <div class="room-code" id="hdCode">----</div>
         <span class="small" id="hdYear"></span>
       </div>
+      <p class="small center">Murid langsung mulai bermain begitu mereka bergabung dengan kode ini — tidak perlu menunggu tombol mulai. Peringkat di bawah ini otomatis diperbarui secara langsung (⭐ poin, lalu ⏱ waktu tercepat sebagai penentu jika seri).</p>
       <div>
-        <label>Pemain Bergabung (<span id="hdCount">0</span>)</label>
+        <label>Peringkat Live (<span id="hdCount">0</span> bergabung)</label>
         <div id="hdPlayers"></div>
       </div>
-      <div>
-        <label>Tahap Sekarang</label>
-        <div class="objective" id="hdStage">Lobby — menunggu host memulai</div>
-      </div>
-      <div class="stack" id="hdControls"></div>
       <button class="btn btn-ghost btn-block" onclick="if(confirm('Akhiri sesi ini?'))go('home')">Keluar dari Dashboard Host</button>
     </div>
   </div>
@@ -287,45 +301,75 @@ label{font-weight:800; color:var(--ink-soft); font-size:.85rem; letter-spacing:.
   </div>
 
   <!-- TUTORIAL -->
-  <div class="screen" id="screen-tutorial">
-    <div class="hud" id="hudBar"></div>
-    <div class="card center stack">
-      <div class="treasure-emoji">🧭</div>
-      <h2>Selamat Datang, Ocean Explorer!</h2>
-      <p>Kamu akan menjelajah dunia bawah laut: <b>Coral Reef → Fish Bay → Deep Sea → Whale Zone → Ocean Treasure</b>.</p>
-      <p>🎯 Jawab tantangan Bahasa Inggris dengan benar untuk mengumpulkan <b>⭐ Ocean Stars</b>.</p>
-      <p>💛 Jawaban salah tidak apa-apa — cukup coba lagi!</p>
-      <button class="btn btn-primary btn-lg" id="tutorialNextBtn" onclick="playerReadyAdvance()">Aku Siap! 🌊</button>
+  <div class="screen wide" id="screen-tutorial">
+    <div class="play-layout">
+      <aside class="leaderboard-panel"></aside>
+      <div class="game-main">
+        <div class="hud" id="hudBar"></div>
+        <div class="card center stack">
+          <div class="treasure-emoji">🧭</div>
+          <h2>Selamat Datang, Ocean Explorer!</h2>
+          <p>Kamu akan menjelajah dunia bawah laut: <b>Coral Reef → Fish Bay → Deep Sea → Whale Zone → Ocean Treasure</b>.</p>
+          <p>🎯 Jawab tantangan Bahasa Inggris dengan benar untuk mengumpulkan <b>⭐ Ocean Stars</b>.</p>
+          <p>💛 Jawaban salah: <b>-5 poin</b>. Setiap soal cuma ada 2 kali kesempatan, lalu lanjut otomatis ke soal berikutnya — jadi pikirkan baik-baik!</p>
+          <button class="btn btn-primary btn-lg" id="tutorialNextBtn" onclick="goNext()">Aku Siap! 🌊</button>
+        </div>
+      </div>
     </div>
   </div>
 
   <!-- GENERIC GAME SCREENS (1-4) share structure, built dynamically -->
-  <div class="screen" id="screen-game1">
-    <div class="hud" id="hud-game1"></div>
-    <div class="objective" id="obj-game1"></div>
-    <div class="card" id="body-game1"></div>
+  <div class="screen wide" id="screen-game1">
+    <div class="play-layout">
+      <aside class="leaderboard-panel"></aside>
+      <div class="game-main">
+        <div class="hud" id="hud-game1"></div>
+        <div class="objective" id="obj-game1"></div>
+        <div class="card" id="body-game1"></div>
+      </div>
+    </div>
   </div>
-  <div class="screen" id="screen-game2">
-    <div class="hud" id="hud-game2"></div>
-    <div class="objective" id="obj-game2"></div>
-    <div class="card" id="body-game2"></div>
+  <div class="screen wide" id="screen-game2">
+    <div class="play-layout">
+      <aside class="leaderboard-panel"></aside>
+      <div class="game-main">
+        <div class="hud" id="hud-game2"></div>
+        <div class="objective" id="obj-game2"></div>
+        <div class="card" id="body-game2"></div>
+      </div>
+    </div>
   </div>
-  <div class="screen" id="screen-game3">
-    <div class="hud" id="hud-game3"></div>
-    <div class="objective" id="obj-game3"></div>
-    <div class="card" id="body-game3"></div>
+  <div class="screen wide" id="screen-game3">
+    <div class="play-layout">
+      <aside class="leaderboard-panel"></aside>
+      <div class="game-main">
+        <div class="hud" id="hud-game3"></div>
+        <div class="objective" id="obj-game3"></div>
+        <div class="card" id="body-game3"></div>
+      </div>
+    </div>
   </div>
-  <div class="screen" id="screen-game4">
-    <div class="hud" id="hud-game4"></div>
-    <div class="objective" id="obj-game4"></div>
-    <div class="card" id="body-game4"></div>
+  <div class="screen wide" id="screen-game4">
+    <div class="play-layout">
+      <aside class="leaderboard-panel"></aside>
+      <div class="game-main">
+        <div class="hud" id="hud-game4"></div>
+        <div class="objective" id="obj-game4"></div>
+        <div class="card" id="body-game4"></div>
+      </div>
+    </div>
   </div>
 
   <!-- FINAL -->
-  <div class="screen" id="screen-final">
-    <div class="hud" id="hud-final"></div>
-    <div class="objective" id="obj-final">Selesaikan tantangan terakhir untuk membuka Peti Harta Karun!</div>
-    <div class="card" id="body-final"></div>
+  <div class="screen wide" id="screen-final">
+    <div class="play-layout">
+      <aside class="leaderboard-panel"></aside>
+      <div class="game-main">
+        <div class="hud" id="hud-final"></div>
+        <div class="objective" id="obj-final">Selesaikan tantangan terakhir untuk membuka Peti Harta Karun!</div>
+        <div class="card" id="body-final"></div>
+      </div>
+    </div>
   </div>
 
   <!-- ENDED -->
@@ -362,7 +406,7 @@ const AVATARS=['🐠','🐙','🐋','🦀','⭐','🐚','🦑','🐢','🦈','�
 const DEFAULT_HUB_URL="./dashboard.html";
 let HUB_URL=localStorage.getItem('oea_hubUrl')||DEFAULT_HUB_URL;
 const STAGES=['tutorial','game1','game2','game3','game4','final'];
-const STAGE_TITLES={lobby:'Lobby — menunggu host memulai',tutorial:'🧭 Tutorial (5 min)',game1:'🐟 Game 1: Find the Fish (10 min)',game2:'🔍 Game 2: Ocean Word Hunt (10 min)',game3:'♻️ Game 3: Save the Ocean (10 min)',game4:'🚤 Game 4: Ocean Quiz Race (10 min)',final:'🏆 Final Ocean Treasure Challenge (5 min)',ended:'✅ Selesai — waktunya materi belajar (10 min)'};
+const STAGE_TITLES={tutorial:'Tutorial',game1:'Game 1',game2:'Game 2',game3:'Game 3',game4:'Game 4',final:'Final',ended:'Selesai'};
 
 /* ============================= STATE ============================= */
 let db=null, dbReady=false;
@@ -375,7 +419,10 @@ let state={
   stars:0, itemsCleaned:0,
   screen:'home',
   unsub:[],
+  startTime:null, elapsedMs:null,
 };
+let flowIdx=0;
+let timerInterval=null;
 
 function rid(){return Math.random().toString(36).slice(2,10);}
 function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
@@ -394,6 +441,17 @@ function go(screenId){
   if(el) el.classList.add('active');
   state.screen=screenId;
   window.scrollTo(0,0);
+  const exitBtn=document.getElementById('exitBtn');
+  if(exitBtn){
+    const showOn=['tutorial','game1','game2','game3','game4','final','ended'];
+    exitBtn.style.display = showOn.includes(screenId) ? 'flex' : 'none';
+  }
+}
+function exitToHub(){
+  if(!confirm('Keluar dari game dan kembali ke Dashboard?')) return;
+  stopTimer();
+  if(HUB_URL){ window.location.href=HUB_URL; }
+  else { go('home'); }
 }
 
 /* ============================= BUBBLES DECOR ============================= */
@@ -473,9 +531,53 @@ function renderHud(targetId, stage){
   el.innerHTML=`
     <div class="hud-who"><span class="av">${state.avatar}</span><span>${escapeHtml(state.name||'Explorer')}</span></div>
     <div class="hud-dots">${dots}</div>
+    <span class="hud-stars" data-timer>${state.startTime? '⏱ '+formatTime(Date.now()-state.startTime) : '⏱ 00:00'}</span>
     <div class="hud-stars">⭐ ${state.stars}</div>`;
 }
 function escapeHtml(s){return (s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+/* ============================= TIMER ============================= */
+function formatTime(ms){
+  const s=Math.max(0,Math.floor(ms/1000)); const m=Math.floor(s/60); const ss=s%60;
+  return String(m).padStart(2,'0')+':'+String(ss).padStart(2,'0');
+}
+function startTimer(){
+  state.startTime=Date.now();
+  if(timerInterval) clearInterval(timerInterval);
+  timerInterval=setInterval(updateTimerDisplay,1000);
+  updateTimerDisplay();
+}
+function stopTimer(){
+  if(timerInterval){ clearInterval(timerInterval); timerInterval=null; }
+}
+function updateTimerDisplay(){
+  if(!state.startTime) return;
+  const txt='⏱ '+formatTime(Date.now()-state.startTime);
+  document.querySelectorAll('[data-timer]').forEach(el=>{ el.textContent=txt; });
+}
+
+/* ============================= LEADERBOARD PANEL ============================= */
+function renderLeaderboardPanel(){
+  const panels=document.querySelectorAll('.leaderboard-panel');
+  if(!panels.length) return;
+  let html;
+  if(state.mode==='solo'){
+    html='<h4>🏆 Peringkat</h4><p class="small">Mode Latihan Sendiri — main bareng teman lewat kode ruangan untuk lihat peringkat langsung di sini.</p>';
+  } else {
+    const roster=(state._roster||[]).slice();
+    roster.sort((a,b)=>(b.stars||0)-(a.stars||0));
+    html='<h4>🏆 Peringkat Live</h4>';
+    if(!roster.length){
+      html+='<p class="small">Menunggu pemain lain bergabung...</p>';
+    } else {
+      roster.forEach((p,i)=>{
+        const isMe = p.id===state.playerId;
+        html+=`<div class="lb-row ${isMe?'me':''}"><span class="lb-rank">${i+1}</span><span>${p.avatar||'🐠'}</span><span class="lb-name">${escapeHtml(p.name||'Explorer')}</span><span>⭐${p.stars||0}</span></div>`;
+      });
+    }
+  }
+  panels.forEach(p=>{ p.innerHTML=html; });
+}
 
 /* ============================= SVG FISH ============================= */
 function fishSVG(color,px){
@@ -501,7 +603,7 @@ async function doCreateRoom(){
   if(!dbReady){ msg.textContent='Mode multiplayer tidak tersedia di perangkat ini. Gunakan Latihan Sendiri, atau buka lewat Claude dengan akses database aktif.'; return; }
   const code=genRoomCode();
   try{
-    await db.doc('rooms/'+code).set({stage:'lobby', yearLevel:state.yearLevel, createdAt:Date.now(), cleanupGoal:30});
+    await db.doc('rooms/'+code).set({yearLevel:state.yearLevel, createdAt:Date.now(), cleanupGoal:30});
   }catch(e){ msg.textContent='Gagal membuat ruangan. Coba lagi.'; return; }
   state.mode='host'; state.roomCode=code;
   go('host_dashboard');
@@ -513,50 +615,37 @@ function genRoomCode(){
   return c;
 }
 
+function sortRoster(arr){
+  arr.sort((a,b)=>{
+    const sd=(b.stars||0)-(a.stars||0);
+    if(sd!==0) return sd;
+    const at=a.elapsedMs, bt=b.elapsedMs;
+    if(at==null && bt==null) return 0;
+    if(at==null) return 1;
+    if(bt==null) return -1;
+    return at-bt;
+  });
+  return arr;
+}
 function hostSubscribe(){
   document.getElementById('hdCode').textContent=state.roomCode;
   document.getElementById('hdYear').textContent = state.yearLevel==='y12' ? '🌱 Year 1–2' : '🚀 Year 3–4';
   clearUnsub();
-  const roomRef=db.doc('rooms/'+state.roomCode);
-  const u1=roomRef.onSnapshot(snap=>{
-    if(!snap.exists) return;
-    const d=snap.data();
-    document.getElementById('hdStage').textContent = STAGE_TITLES[d.stage]||d.stage;
-    renderHostControls(d.stage);
-  });
   const playersRef=db.collection('rooms/'+state.roomCode+'/players').orderBy('joinedAt','asc').limit(60);
   const u2=playersRef.onSnapshot(snap=>{
     document.getElementById('hdCount').textContent=snap.size;
+    const arr=sortRoster(snap.docs.map(d=>({id:d.id,...d.data()})));
     let html='';
-    snap.docs.forEach(doc=>{
-      const p=doc.data();
-      html+=`<div class="player-row"><span class="av">${p.avatar||'🐠'}</span><span class="nm">${escapeHtml(p.name||'Explorer')}</span><span class="pill">${STAGE_TITLES[p.activity]?p.activity:(p.activity||'lobby')}</span><span class="st">⭐ ${p.stars||0}</span></div>`;
+    arr.forEach((p,i)=>{
+      const activityLabel = STAGE_TITLES[p.activity] || 'Tutorial';
+      const timeTxt = p.elapsedMs!=null ? formatTime(p.elapsedMs) : '';
+      html+=`<div class="player-row"><span>${i+1}.</span><span class="av">${p.avatar||'🐠'}</span><span class="nm">${escapeHtml(p.name||'Explorer')}</span><span class="pill">${activityLabel}</span>${timeTxt?`<span class="small">⏱ ${timeTxt}</span>`:''}<span class="st">⭐ ${p.stars||0}</span></div>`;
     });
     document.getElementById('hdPlayers').innerHTML = html || '<p class="small">Belum ada pemain bergabung.</p>';
   });
-  state.unsub.push(u1,u2);
+  state.unsub.push(u2);
 }
 function clearUnsub(){ state.unsub.forEach(u=>{try{u();}catch(e){}}); state.unsub=[]; }
-
-function renderHostControls(stage){
-  const idx=STAGES.indexOf(stage);
-  const el=document.getElementById('hdControls');
-  let html='';
-  if(stage==='lobby'){
-    html+=`<button class="btn btn-primary btn-block" onclick="hostAdvance('tutorial')">▶️ Mulai Sesi (Tutorial)</button>`;
-  } else if(stage==='ended'){
-    html+=`<p class="small">Sesi selesai. Lanjutkan dengan materi belajar di Ocean English Learning Hub.</p>`;
-  } else {
-    const next = idx+1<STAGES.length ? STAGES[idx+1] : 'ended';
-    const nextLabel = next==='ended' ? '🏁 Selesaikan Sesi' : '⏭ Lanjut: '+STAGE_TITLES[next];
-    html+=`<button class="btn btn-coral btn-block" onclick="hostAdvance('${next}')">${nextLabel}</button>`;
-  }
-  el.innerHTML=html;
-}
-async function hostAdvance(stage){
-  if(!db||!state.roomCode) return;
-  await db.doc('rooms/'+state.roomCode).update({stage});
-}
 
 function go_joinSetup(){ go('join_setup'); }
 
@@ -578,13 +667,11 @@ async function doJoin(){
   state.playerId=pid;
   try{
     await db.doc('rooms/'+code+'/players/'+pid).set({
-      name:state.name, avatar:state.avatar, stars:0, itemsCleaned:0, activity:'lobby', joinedAt:Date.now()
+      name:state.name, avatar:state.avatar, stars:0, itemsCleaned:0, activity:'tutorial', joinedAt:Date.now()
     });
   }catch(e){ msg.textContent='Gagal bergabung. Coba lagi.'; return; }
-  state.stars=0; state.itemsCleaned=0;
-  document.getElementById('lobbyCode').textContent=code;
-  go('lobby');
   playerSubscribeRoom();
+  beginAdventure();
 }
 
 function playerSubscribeRoom(){
@@ -595,16 +682,11 @@ function playerSubscribeRoom(){
     const d=snap.data();
     state.yearLevel=d.yearLevel||state.yearLevel;
     state.cleanupGoal=d.cleanupGoal||30;
-    onStageChange(d.stage);
   });
   const playersRef=db.collection('rooms/'+state.roomCode+'/players').orderBy('joinedAt','asc').limit(60);
   const u2=playersRef.onSnapshot(snap=>{
-    if(state.screen==='lobby'){
-      let html='';
-      snap.docs.forEach(doc=>{const p=doc.data(); html+=`<div class="player-row"><span class="av">${p.avatar||'🐠'}</span><span class="nm">${escapeHtml(p.name)}</span></div>`;});
-      document.getElementById('lobbyPlayers').innerHTML=html;
-    }
-    state._roster = snap.docs.map(d=>d.data());
+    state._roster = snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderLeaderboardPanel();
   });
   const u3=playersRef.onSnapshot(snap=>{
     let total=0; snap.docs.forEach(d=>total+=(d.data().itemsCleaned||0));
@@ -613,58 +695,55 @@ function playerSubscribeRoom(){
   });
   state.unsub.push(u1,u2,u3);
 }
-
-let lastStage=null;
-function onStageChange(stage){
-  if(stage===lastStage) return;
-  lastStage=stage;
-  if(!STAGES.includes(stage) && stage!=='ended' && stage!=='lobby') return;
-  if(stage==='lobby'){ go('lobby'); return; }
-  if(stage==='ended'){ renderEnded(); go('ended'); return; }
-  updateMyActivity(stage);
-  if(stage==='tutorial'){ renderHud('hudBar','tutorial'); go('tutorial'); return; }
-  if(stage==='game1'){ go('game1'); startGame1(); return; }
-  if(stage==='game2'){ go('game2'); startGame2(); return; }
-  if(stage==='game3'){ go('game3'); startGame3(); return; }
-  if(stage==='game4'){ go('game4'); startGame4(); return; }
-  if(stage==='final'){ go('final'); startFinal(); return; }
-}
 function updateMyActivity(stage){
   if(state.mode==='player' && db && state.roomCode){
     db.doc('rooms/'+state.roomCode+'/players/'+state.playerId).update({activity:stage}).catch(()=>{});
   }
 }
-function playerReadyAdvance(){
-  // In multiplayer, host controls pacing; button just confirms readiness.
-  if(state.mode==='solo'){ soloAdvance(); return; }
-  toast('Menunggu host memulai Game 1...','good');
-  document.getElementById('tutorialNextBtn').disabled=true;
-  document.getElementById('tutorialNextBtn').textContent='Menunggu host... ⏳';
-}
 
 /* ================================================================
    SOLO MODE
    ================================================================ */
-let soloIdx=0;
 function startSolo(){
-  state.mode='solo'; state.name='Explorer'; state.stars=0; state.itemsCleaned=0; state.cleanupGoal=15;
-  soloIdx=0;
+  state.mode='solo'; state.name='Explorer'; state.cleanupGoal=15;
+  beginAdventure();
+}
+
+/* ================================================================
+   UNIFIED FLOW — no waiting for host; every player (solo or in a
+   room) moves straight through Tutorial -> Game1-4 -> Final on their
+   own pace. Rooms are only used to sync the live leaderboard.
+   ================================================================ */
+function beginAdventure(){
+  state.stars=0; state.itemsCleaned=0; state.elapsedMs=null;
+  flowIdx=0;
+  startTimer();
   renderHud('hudBar','tutorial');
+  renderLeaderboardPanel();
   go('tutorial');
 }
-function soloAdvance(){
-  soloIdx++;
-  const stage=STAGES[soloIdx];
-  if(!stage){ renderEnded(); go('ended'); return; }
+function goNext(){
+  flowIdx++;
+  const stage=STAGES[flowIdx];
+  if(!stage){ finishAdventure(); return; }
+  updateMyActivity(stage);
   if(stage==='game1'){ go('game1'); startGame1(); return; }
   if(stage==='game2'){ go('game2'); startGame2(); return; }
   if(stage==='game3'){ go('game3'); startGame3(); return; }
   if(stage==='game4'){ go('game4'); startGame4(); return; }
   if(stage==='final'){ go('final'); startFinal(); return; }
 }
-function nextAfterGame(){
-  if(state.mode==='solo'){ soloAdvance(); }
-  else { toast('Menunggu host melanjutkan ke tahap berikutnya...','good'); }
+function nextAfterGame(){ goNext(); }
+function finishAdventure(){
+  stopTimer();
+  state.elapsedMs = state.startTime ? (Date.now()-state.startTime) : 0;
+  if(state.mode==='player' && db && state.roomCode){
+    db.doc('rooms/'+state.roomCode+'/players/'+state.playerId).update({
+      stars:state.stars, elapsedMs:state.elapsedMs, finishedAt:Date.now(), activity:'ended'
+    }).catch(()=>{});
+  }
+  renderEnded();
+  go('ended');
 }
 
 /* ================================================================
@@ -677,6 +756,11 @@ async function addStars(n){
   });
   if(state.mode==='player' && db){
     db.doc('rooms/'+state.roomCode+'/players/'+state.playerId).update({stars:state.stars}).catch(()=>{});
+    if(state._roster){
+      const mine=state._roster.find(p=>p.id===state.playerId);
+      if(mine) mine.stars=state.stars;
+    }
+    renderLeaderboardPanel();
   }
 }
 function currentStageForHud(){
@@ -743,7 +827,7 @@ function nextG1Round(){
     type='colorsize'; target={color:col, small:wantSmall};
   }
   document.getElementById('obj-game1').innerHTML=`📍 Coral Reef — ${instruction}`;
-  let needed = needClicks, gotClicks=0;
+  let needed = needClicks, gotClicks=0, wrongCount=0;
   let html=`<div class="grid-fish">`;
   fishes.forEach((f,i)=>{
     html+=`<div class="fish-tile" data-i="${i}">${fishSVG(f.color.h,f.size)}<span class="fish-count">${f.color.n.toLowerCase()}</span></div>`;
@@ -764,14 +848,23 @@ function nextG1Round(){
         addStars(10); toast(needed>1?`Great! ${gotClicks}/${needed}`:'Correct! +10 ⭐','good');
         if(gotClicks>=needed){ setTimeout(nextG1Round,500); }
       } else {
-        tile.classList.add('shake'); toast('Try again!','bad');
-        setTimeout(()=>tile.classList.remove('shake'),400);
+        wrongCount++;
+        addStars(-5);
+        tile.classList.add('shake');
+        if(wrongCount>=2){
+          toast('-5 poin. Lanjut ke soal berikutnya.','bad');
+          body.querySelectorAll('.fish-tile').forEach(t=>t.style.pointerEvents='none');
+          setTimeout(nextG1Round,700);
+        } else {
+          toast('-5 poin, coba lagi!','bad');
+          setTimeout(()=>tile.classList.remove('shake'),400);
+        }
       }
     };
   });
 }
 function finishGame1(){
-  document.getElementById('body-game1').innerHTML=`<div class="center stack"><div class="treasure-emoji">🐠</div><h3>Coral Reef selesai!</h3><p>Kamu menemukan semua ikan. Lanjut ke Ocean Word Hunt.</p><button class="btn btn-primary btn-lg" onclick="nextAfterGame()">${state.mode==='solo'?'Lanjut ▶️':'Menunggu host...'}</button></div>`;
+  document.getElementById('body-game1').innerHTML=`<div class="center stack"><div class="treasure-emoji">🐠</div><h3>Coral Reef selesai!</h3><p>Kamu menemukan semua ikan. Lanjut ke Ocean Word Hunt.</p><button class="btn btn-primary btn-lg" onclick="goNext()">Lanjut ▶️</button></div>`;
 }
 
 /* ================================================================
@@ -798,6 +891,7 @@ function nextG2Round(){
   html+=`</div><p class="small center" style="margin-top:10px;">Round ${g2Round} / ${g2Total}</p>`;
   body.innerHTML=html;
   g2StartT=Date.now();
+  let wrongCount=0;
   body.querySelectorAll('.hunt-tile').forEach(tile=>{
     tile.onclick=()=>{
       const i=+tile.dataset.i;
@@ -808,14 +902,23 @@ function nextG2Round(){
         toast(fast?'Fast find! +15 ⭐':'Found it! +10 ⭐','good');
         setTimeout(nextG2Round,450);
       } else {
-        tile.classList.add('shake'); toast('Try again!','bad');
-        setTimeout(()=>tile.classList.remove('shake'),400);
+        wrongCount++;
+        addStars(-5);
+        tile.classList.add('shake');
+        if(wrongCount>=2){
+          toast('-5 poin. Lanjut ke soal berikutnya.','bad');
+          body.querySelectorAll('.hunt-tile').forEach(t=>t.style.pointerEvents='none');
+          setTimeout(nextG2Round,700);
+        } else {
+          toast('-5 poin, coba lagi!','bad');
+          setTimeout(()=>tile.classList.remove('shake'),400);
+        }
       }
     };
   });
 }
 function finishGame2(){
-  document.getElementById('body-game2').innerHTML=`<div class="center stack"><div class="treasure-emoji">🔍</div><h3>Ocean Word Hunt selesai!</h3><p>Semua benda laut ditemukan. Lanjut ke Save the Ocean.</p><button class="btn btn-primary btn-lg" onclick="nextAfterGame()">${state.mode==='solo'?'Lanjut ▶️':'Menunggu host...'}</button></div>`;
+  document.getElementById('body-game2').innerHTML=`<div class="center stack"><div class="treasure-emoji">🔍</div><h3>Ocean Word Hunt selesai!</h3><p>Semua benda laut ditemukan. Lanjut ke Save the Ocean.</p><button class="btn btn-primary btn-lg" onclick="goNext()">Lanjut ▶️</button></div>`;
 }
 
 /* ================================================================
@@ -848,6 +951,7 @@ function openG3Challenge(el,word){
   const distract = sample(THINGS.concat(ANIMALS),2);
   const opts = shuffle([correctItem, ...distract]);
   const modal=document.getElementById('g3modal');
+  let wrongCount=0;
   modal.innerHTML=`<div class="card" style="margin-top:14px;"><h3 style="text-align:center;">What is this? ${correctItem.e}</h3><div class="mc-grid">${opts.map((o,i)=>`<div class="mc-opt" data-w="${o.w}"><span class="mc-letter">${String.fromCharCode(65+i)}</span>${o.w}</div>`).join('')}</div></div>`;
   modal.querySelectorAll('.mc-opt').forEach(opt=>{
     opt.onclick=async ()=>{
@@ -858,7 +962,16 @@ function openG3Challenge(el,word){
         toast('Collected! +10 ⭐','good');
         setTimeout(()=>{ modal.innerHTML=''; afterG3Collect(); },500);
       } else {
-        opt.classList.add('wrong'); toast('Try again!','bad');
+        wrongCount++;
+        addStars(-5);
+        opt.classList.add('wrong');
+        if(wrongCount>=2){
+          toast('-5 poin. Coba benda lain.','bad');
+          modal.querySelectorAll('.mc-opt').forEach(o=>o.style.pointerEvents='none');
+          setTimeout(()=>{ modal.innerHTML=''; },700);
+        } else {
+          toast('-5 poin, coba lagi!','bad');
+        }
       }
     };
   });
@@ -880,7 +993,7 @@ function updateGame3Progress(n){
   if(shown>=g3Goal && state.screen==='game3'){ finishGame3(); }
 }
 function finishGame3(){
-  document.getElementById('body-game3').innerHTML=`<div class="center stack"><div class="treasure-emoji">🎉</div><h3>YOU SAVED THE OCEAN!</h3><p>Laut sudah bersih dari sampah. Lanjut ke Ocean Quiz Race.</p><button class="btn btn-primary btn-lg" onclick="nextAfterGame()">${state.mode==='solo'?'Lanjut ▶️':'Menunggu host...'}</button></div>`;
+  document.getElementById('body-game3').innerHTML=`<div class="center stack"><div class="treasure-emoji">🎉</div><h3>YOU SAVED THE OCEAN!</h3><p>Laut sudah bersih dari sampah. Lanjut ke Ocean Quiz Race.</p><button class="btn btn-primary btn-lg" onclick="goNext()">Lanjut ▶️</button></div>`;
 }
 
 /* ================================================================
@@ -922,23 +1035,36 @@ function askG4(){
   const item = g4Bank[g4Idx % g4Bank.length];
   const opts = shuffle(item.opts);
   const wrap=document.getElementById('g4qwrap');
+  let wrongCount=0;
   wrap.innerHTML=`<h3 style="text-align:center;">${item.q}</h3><div class="mc-grid">${opts.map((o,i)=>`<div class="mc-opt" data-o="${escapeHtml(o)}"><span class="mc-letter">${String.fromCharCode(65+i)}</span>${o}</div>`).join('')}</div>`;
   wrap.querySelectorAll('.mc-opt').forEach(opt=>{
     opt.onclick=()=>{
       if(opt.dataset.o===item.a){
         opt.classList.add('correct');
         addStars(10);
-        g4Idx++;
-        document.getElementById('g4boat').style.left=(g4Idx/g4Total*100)+'%';
-        setTimeout(askG4,550);
+        advanceG4();
       } else {
-        opt.classList.add('wrong'); toast('Try again!','bad');
+        wrongCount++;
+        addStars(-5);
+        opt.classList.add('wrong');
+        if(wrongCount>=2){
+          toast('-5 poin. Lanjut ke soal berikutnya.','bad');
+          wrap.querySelectorAll('.mc-opt').forEach(o=>o.style.pointerEvents='none');
+          setTimeout(advanceG4,700);
+        } else {
+          toast('-5 poin, coba lagi!','bad');
+        }
       }
     };
   });
 }
+function advanceG4(){
+  g4Idx++;
+  document.getElementById('g4boat').style.left=(g4Idx/g4Total*100)+'%';
+  setTimeout(askG4,550);
+}
 function finishGame4(){
-  document.getElementById('g4qwrap').innerHTML=`<div class="center stack"><div class="treasure-emoji">🏁</div><h3>Kamu sampai di Ocean Treasure!</h3><button class="btn btn-primary btn-lg" onclick="nextAfterGame()">${state.mode==='solo'?'Lanjut ▶️':'Menunggu host...'}</button></div>`;
+  document.getElementById('g4qwrap').innerHTML=`<div class="center stack"><div class="treasure-emoji">🏁</div><h3>Kamu sampai di Ocean Treasure!</h3><button class="btn btn-primary btn-lg" onclick="goNext()">Lanjut ▶️</button></div>`;
 }
 
 /* ================================================================
@@ -965,31 +1091,37 @@ function askFinal(){
   }
   const item=FINAL_QS[gfIdx];
   const opts=shuffle(item.opts);
+  let wrongCount=0;
   body.innerHTML=`<div class="stack"><p class="small center">Tantangan ${gfIdx+1} / ${FINAL_QS.length}</p><h3 style="text-align:center;">${item.q}</h3><div class="mc-grid">${opts.map((o,i)=>`<div class="mc-opt" data-o="${escapeHtml(o)}"><span class="mc-letter">${String.fromCharCode(65+i)}</span>${o}</div>`).join('')}</div></div>`;
   body.querySelectorAll('.mc-opt').forEach(opt=>{
     opt.onclick=()=>{
       if(opt.dataset.o===item.a){
         opt.classList.add('correct'); addStars(15);
         gfIdx++; setTimeout(askFinal,500);
-      } else { opt.classList.add('wrong'); toast('Try again!','bad'); }
+      } else {
+        wrongCount++;
+        addStars(-5);
+        opt.classList.add('wrong');
+        if(wrongCount>=2){
+          toast('-5 poin. Lanjut ke tantangan berikutnya.','bad');
+          body.querySelectorAll('.mc-opt').forEach(o=>o.style.pointerEvents='none');
+          gfIdx++; setTimeout(askFinal,700);
+        } else {
+          toast('-5 poin, coba lagi!','bad');
+        }
+      }
     };
   });
 }
 function openTreasure(){
-  if(state.mode==='solo'){ renderEnded(); go('ended'); return; }
-  toast('Menunggu host menyelesaikan sesi...','good');
-  document.getElementById('body-final').innerHTML=`<div class="center stack"><div class="treasure-emoji">🏆</div><h3>Hebat! Menunggu host menyelesaikan sesi untuk semua...</h3></div>`;
-  if(state.mode==='player' && db){
-    hostAdvanceIfHost();
-  }
+  finishAdventure();
 }
-function hostAdvanceIfHost(){}
 
 /* ================================================================
    ENDED / LEADERBOARD
    ================================================================ */
 function renderEnded(){
-  document.getElementById('endedStars').textContent = `⭐ Total Ocean Stars kamu: ${state.stars}`;
+  document.getElementById('endedStars').textContent = `⭐ ${state.stars} Ocean Stars  •  ⏱ ${formatTime(state.elapsedMs||0)}`;
   const hub=document.getElementById('endedHubBtn');
   hub.href = HUB_URL || '#';
   if(!HUB_URL) hub.style.display='none'; else hub.style.display='inline-flex';
@@ -997,9 +1129,13 @@ function renderEnded(){
   const lb=document.getElementById('endedLeaderboard');
   lb.innerHTML='';
   if(state.mode==='player' && state.roomCode && db){
-    db.collection('rooms/'+state.roomCode+'/players').orderBy('stars','desc').limit(10).get().then(snap=>{
-      let html='<label>Papan Peringkat Kelas</label>';
-      snap.docs.forEach((d,i)=>{const p=d.data(); html+=`<div class="player-row"><span>${i+1}.</span><span class="av">${p.avatar||'🐠'}</span><span class="nm">${escapeHtml(p.name)}</span><span class="st">⭐ ${p.stars||0}</span></div>`;});
+    db.collection('rooms/'+state.roomCode+'/players').orderBy('stars','desc').limit(30).get().then(snap=>{
+      const arr=sortRoster(snap.docs.map(d=>({id:d.id,...d.data()})));
+      let html='<label>Papan Peringkat Kelas (poin, lalu waktu tercepat)</label>';
+      arr.forEach((p,i)=>{
+        const timeTxt = p.elapsedMs!=null ? formatTime(p.elapsedMs) : 'sedang main';
+        html+=`<div class="player-row"><span>${i+1}.</span><span class="av">${p.avatar||'🐠'}</span><span class="nm">${escapeHtml(p.name)}</span><span class="small">⏱ ${timeTxt}</span><span class="st">⭐ ${p.stars||0}</span></div>`;
+      });
       lb.innerHTML=html;
     }).catch(()=>{});
   }
