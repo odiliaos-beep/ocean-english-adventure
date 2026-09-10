@@ -689,9 +689,12 @@ function playerSubscribeRoom(){
     renderLeaderboardPanel();
   });
   const u3=playersRef.onSnapshot(snap=>{
+    // Team total is kept only as a fun stat (e.g. for the host view) — it must
+    // NEVER gate or shorten any individual player's own Game 3 turn, otherwise
+    // players who play later than others get cut off early and score unfairly
+    // fewer points even with 100% correct answers.
     let total=0; snap.docs.forEach(d=>total+=(d.data().itemsCleaned||0));
     state._sharedCleaned=total;
-    if(state.screen==='game3' && typeof window._game3UpdateShared==='function') window._game3UpdateShared(total);
   });
   state.unsub.push(u1,u2,u3);
 }
@@ -924,14 +927,14 @@ function finishGame2(){
 /* ================================================================
    GAME 3 — SAVE THE OCEAN
    ================================================================ */
-let g3Goal=15, g3Placed=[];
+const G3_PERSONAL_GOAL=15; // same for every player — solo or in a room — so scoring is always fair
+let g3Goal=G3_PERSONAL_GOAL, g3Placed=[];
 function startGame3(){
   renderHud('hud-game3','game3');
-  g3Goal = state.mode==='player' ? (state.cleanupGoal||30) : 15;
-  document.getElementById('obj-game3').textContent='♻️ Deep Sea — Bersihkan sampah laut bersama!';
-  window._game3UpdateShared = updateGame3Progress;
+  g3Goal = G3_PERSONAL_GOAL;
+  document.getElementById('obj-game3').textContent='♻️ Deep Sea — Bersihkan sampah laut!';
   renderGame3Scene();
-  updateGame3Progress(state.mode==='player'?(state._sharedCleaned||0):state.itemsCleaned);
+  updateGame3Progress(state.itemsCleaned);
 }
 function renderGame3Scene(){
   const body=document.getElementById('body-game3');
@@ -977,7 +980,7 @@ function openG3Challenge(el,word){
   });
 }
 function afterG3Collect(){
-  const localTotal = state.mode==='player' ? (state._sharedCleaned||0)+1 : state.itemsCleaned;
+  const localTotal = state.itemsCleaned; // always MY own count — never another player's
   updateGame3Progress(localTotal);
   const scene=document.getElementById('g3scene');
   const remaining=[...scene.querySelectorAll('.trash-item')].filter(e=>!e.classList.contains('gone'));
